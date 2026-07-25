@@ -1,0 +1,35 @@
+# Gradle
+.gradle/
+build/
+*/build/
+!**/src/**/build/
+
+# Kotlin compiler sessions
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Local properties (SDK paths, signing keys, secrets)
+local.properties
+*.jks
+*.keystore
+
+# Android
+app/release/
+captures/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# APK outputs (not tracked in repo)
+*.apk
+
+# Kotlin generated
+*.class

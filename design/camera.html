@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 拍照识食</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .step { display: none; flex-direction: column; flex: 1; }
+    .step.active { display: flex; }
+
+    /* Step 1 — Camera */
+    .camera-view {
+      flex: 1; background: #1a1a1a; position: relative;
+      display: flex; flex-direction: column;
+    }
+    .cam-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-md); color: #fff; z-index: 10;
+    }
+    .cam-top button {
+      background: rgba(255,255,255,0.15); border: none; color: #fff;
+      padding: 6px 14px; border-radius: var(--r-full);
+      font-size: var(--fs-body-sm); cursor: pointer;
+    }
+    .cam-viewfinder {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .cam-grid {
+      position: absolute; inset: 40px;
+      border: 2px dashed rgba(255,255,255,0.2); border-radius: var(--r-lg);
+      display: grid; place-items: center;
+    }
+    .cam-grid::before { content: '对准食物拍照'; color: rgba(255,255,255,0.4); font-size: var(--fs-body-lg); }
+    .cam-bottom {
+      display: flex; align-items: center; justify-content: space-around;
+      padding: var(--sp-xl) var(--sp-md); z-index: 10;
+    }
+    .cam-bottom .cam-gallery {
+      width: 44px; height: 44px; border-radius: var(--r-sm);
+      background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
+      cursor: pointer; display: grid; place-items: center; color: #fff; font-size: 20px;
+    }
+    .cam-bottom .cam-shutter {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: transparent; border: 4px solid #fff;
+      cursor: pointer; position: relative;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+      transition: transform 0.1s;
+    }
+    .cam-shutter::after {
+      content: ''; position: absolute; inset: 6px;
+      border-radius: 50%; background: #fff;
+    }
+    .cam-shutter:active { transform: scale(0.9); }
+
+    /* Step 2 — Loading */
+    .loading-view {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: var(--sp-lg);
+      background: var(--bg);
+    }
+    .loading-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: var(--accent-light);
+      display: grid; place-items: center; font-size: 36px;
+      animation: pulse-breath 2s ease-in-out infinite;
+    }
+    @keyframes pulse-breath {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+    .loading-text {
+      font-size: var(--fs-body-lg); color: var(--muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Step 3 — Result */
+    .result-view {
+      flex: 1; display: flex; flex-direction: column; background: var(--bg);
+    }
+    .food-card {
+      display: flex; gap: var(--sp-md); padding: var(--sp-md);
+      background: var(--surface); border-radius: var(--r-lg);
+      border: 1px solid var(--divider); margin-bottom: var(--sp-sm);
+    }
+    .food-thumb {
+      width: 72px; height: 72px; border-radius: var(--r-md);
+      background: var(--surface-variant); display: grid; place-items: center;
+      font-size: 28px; flex-shrink: 0;
+    }
+    .food-detail { flex: 1; }
+    .food-name {
+      font-size: var(--fs-body-lg); font-weight: 600; display: flex; align-items: center; gap: var(--sp-sm);
+    }
+    .food-name .delete-btn {
+      margin-left: auto; width: 32px; height: 32px; border-radius: 50%;
+      border: none; background: transparent; color: var(--error);
+      font-size: 16px; cursor: pointer;
+    }
+    .portion-row {
+      display: flex; align-items: center; gap: var(--sp-sm); margin-top: 6px;
+    }
+    .portion-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid var(--divider); background: var(--surface);
+      font-size: 16px; cursor: pointer; display: grid; place-items: center;
+      font-weight: 600; color: var(--fg);
+    }
+    .portion-btn:hover { background: var(--surface-variant); }
+    .portion-val { font-size: var(--fs-body-lg); font-weight: 600; min-width: 48px; text-align: center; }
+    .food-kcal {
+      font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+      font-size: var(--fs-body-lg); font-weight: 600; color: var(--calories); margin-top: 4px;
+    }
+    .food-macros { font-size: var(--fs-body-sm); color: var(--muted); margin-top: 2px; }
+    .result-footer {
+      padding: var(--sp-md); display: flex; gap: var(--sp-sm);
+      border-top: 1px solid var(--divider); background: var(--bg);
+    }
+    .result-footer .btn { flex: 1; }
+
+    .pickers {
+      display: flex; gap: var(--sp-md); padding: var(--sp-md) 0;
+    }
+    .picker {
+      flex: 1; display: flex; flex-direction: column; gap: 4px;
+    }
+    .picker select {
+      width: 100%; height: 44px; padding: 0 var(--sp-sm);
+      background: var(--surface); border: 1px solid var(--divider);
+      border-radius: var(--r-md); font-size: var(--fs-body-md);
+      font-family: var(--font-body); color: var(--fg);
+    }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell" style="min-height:100vh;">
+
+  <!-- ====== Step 1: Camera ====== -->
+  <div class="step active" id="step-camera">
+    <div class="camera-view">
+      <div class="cam-top">
+        <button>⚡ 闪光灯</button>
+        <button>🔲 网格线</button>
+        <button onclick="history.back()">✕ 关闭</button>
+      </div>
+      <div class="cam-viewfinder">
+        <div class="cam-grid"></div>
+      </div>
+      <div class="cam-bottom">
+        <div class="cam-gallery">🖼️</div>
+        <button class="cam-shutter" onclick="goStep('loading')" aria-label="拍照"></button>
+        <div style="width:44px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Step 2: AI Loading ====== -->
+  <div class="step" id="step-loading">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goStep('camera')">←</button>
+      <div class="title">分析食物中</div>
+    </div>
+    <div class="loading-view">
+      <div class="loading-icon">🍽️</div>
+      <div class="loading-text">
+        正在识别食物
+        <span class="spinner" style="padding:0;">
+          <span class="dot-pulse"><span></span><span></span><span></span></span>
+        </span>
+      </div>
+      <button class="btn btn-text" onclick="goStep('camera')" style="margin-top:var(--sp-lg);">取消</button>
+    </div>
+  </div>
+
+  <!-- ====== Step 3: Result ====== -->
+  <div class="step" id="step-result">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goStep('camera')">←</button>
+      <div class="title">确认食物信息</div>
+    </div>
+    <div class="page-content" style="flex:1;">
+      <!-- Food 1 -->
+      <div class="food-card">
+        <div class="food-thumb">🍛</div>
+        <div class="food-detail">
+          <div class="food-name">宫保鸡丁盖饭<button class="delete-btn" onclick="this.closest('.food-card').remove();updateCount()">🗑️</button></div>
+          <div class="portion-row">
+            <button class="portion-btn" onclick="adjustPortion(this,-1)">−</button>
+            <span class="portion-val">1 份</span>
+            <button class="portion-btn" onclick="adjustPortion(this,1)">+</button>
+          </div>
+          <div class="food-kcal">650 kcal</div>
+          <div class="food-macros">🥩 35g · 🍚 60g · 🥑 22g</div>
+        </div>
+      </div>
+      <!-- Food 2 -->
+      <div class="food-card">
+        <div class="food-thumb">🍲</div>
+        <div class="food-detail">
+          <div class="food-name">紫菜蛋花汤<button class="delete-btn" onclick="this.closest('.food-card').remove();updateCount()">🗑️</button></div>
+          <div class="portion-row">
+            <button class="portion-btn" onclick="adjustPortion(this,-1)">−</button>
+            <span class="portion-val">1 碗</span>
+            <button class="portion-btn" onclick="adjustPortion(this,1)">+</button>
+          </div>
+          <div class="food-kcal">45 kcal</div>
+          <div class="food-macros">🥩 3g · 🍚 4g · 🥑 1g</div>
+        </div>
+      </div>
+
+      <div class="pickers">
+        <div class="picker">
+          <label class="input-label">餐次</label>
+          <select>
+            <option>早餐</option>
+            <option selected>午餐</option>
+            <option>晚餐</option>
+            <option>加餐</option>
+          </select>
+        </div>
+        <div class="picker">
+          <label class="input-label">日期</label>
+          <select>
+            <option selected>2026年6月25日</option>
+            <option>2026年6月24日</option>
+            <option>2026年6月23日</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="result-footer">
+      <button class="btn btn-secondary" onclick="goStep('camera')">取消</button>
+      <button class="btn btn-primary" onclick="showSnackbar('✅ 已保存 2 项记录','success')" id="saveBtn">确认保存 (2项)</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function goStep(name) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + name).classList.add('active');
+    // Simulate loading → result transition
+    if (name === 'loading') {
+      setTimeout(() => goStep('result'), 3000);
+    }
+  }
+
+  function adjustPortion(btn, dir) {
+    const row = btn.parentElement;
+    const val = row.querySelector('.portion-val');
+    const parts = val.textContent.split(' ');
+    let num = parseInt(parts[0]);
+    num = Math.max(1, num + dir);
+    val.textContent = num + ' ' + parts[1];
+    // Update kcal
+    const card = row.closest('.food-card');
+    const kcalEl = card.querySelector('.food-kcal');
+    const baseKcal = card.querySelector('.food-thumb').textContent.includes('🍛') ? 650 : 45;
+    kcalEl.textContent = (baseKcal * num) + ' kcal';
+    updateCount();
+  }
+
+  function updateCount() {
+    const count = document.querySelectorAll('#step-result .food-card').length;
+    document.getElementById('saveBtn').textContent = '确认保存 (' + count + '项)';
+  }
+
+  function showSnackbar(msg, type) {
+    const s = document.createElement('div');
+    s.className = 'snackbar ' + type;
+    s.textContent = msg;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 2500);
+  }
+
+  // Theme from parent
+  document.body.setAttribute('data-theme', 'light');
+</script>
+</body>
+</html>

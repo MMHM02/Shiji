@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 开始使用</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .onboard-container {
+      flex: 1; display: flex; flex-direction: column;
+    }
+    .onboard-step { display: none; flex-direction: column; flex: 1; }
+    .onboard-step.active { display: flex; }
+    .step-indicator {
+      display: flex; align-items: center; justify-content: center;
+      gap: var(--sp-sm); padding: var(--sp-lg) 0 var(--sp-sm);
+    }
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--divider); transition: background 0.3s;
+    }
+    .step-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+    .step-dot.done { background: var(--accent); }
+    .onboard-body {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; padding: var(--sp-xl) var(--sp-lg);
+    }
+    .onboard-hero {
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--sp-md); padding: var(--sp-2xl) 0;
+    }
+    .onboard-hero .o-icon { font-size: 72px; }
+    .onboard-hero .o-title {
+      font-size: 28px; font-weight: 700; text-align: center; color: var(--fg);
+    }
+    .onboard-hero .o-desc {
+      font-size: var(--fs-body-lg); color: var(--muted); text-align: center;
+      max-width: 280px; line-height: var(--lh-body-lg);
+    }
+    .onboard-form {
+      width: 100%; display: flex; flex-direction: column; gap: var(--sp-lg);
+      padding-bottom: var(--sp-xl);
+    }
+    .o-input-row {
+      display: flex; align-items: center; gap: var(--sp-md);
+    }
+    .o-input-row label {
+      font-size: var(--fs-body-lg); font-weight: 500; color: var(--fg);
+      min-width: 60px;
+    }
+    .o-input-row input {
+      flex: 1; height: 48px; padding: 0 var(--sp-md);
+      background: var(--surface); border: 1.5px solid var(--divider);
+      border-radius: var(--r-md); font-size: var(--fs-body-lg);
+      font-family: var(--font-body); color: var(--fg); outline: none;
+      text-align: center;
+    }
+    .o-input-row input:focus { border-color: var(--accent); }
+    .o-input-row .unit {
+      font-size: var(--fs-body-md); color: var(--muted); min-width: 32px;
+    }
+    .o-radio-group { display: flex; flex-direction: column; gap: var(--sp-sm); }
+    .o-radio {
+      display: flex; align-items: center; gap: var(--sp-md);
+      padding: 14px var(--sp-md); border-radius: var(--r-lg);
+      background: var(--surface); cursor: pointer;
+      border: 2px solid var(--divider); transition: border-color 0.15s, background 0.15s;
+    }
+    .o-radio:hover { background: var(--surface-variant); }
+    .o-radio.selected {
+      border-color: var(--accent); background: var(--accent-light);
+    }
+    .o-radio .o-radio-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); display: grid; place-items: center; flex-shrink: 0;
+    }
+    .o-radio.selected .o-radio-dot {
+      border-color: var(--accent); background: var(--accent);
+    }
+    .o-radio.selected .o-radio-dot::after {
+      content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff;
+    }
+    .o-radio .o-label { font-size: var(--fs-body-lg); font-weight: 500; }
+    .o-radio .o-sub { font-size: var(--fs-body-sm); color: var(--muted); }
+    .onboard-footer {
+      padding: var(--sp-md); display: flex; flex-direction: column;
+      align-items: center; gap: var(--sp-sm);
+      border-top: 1px solid var(--divider);
+    }
+    .onboard-footer .btn { width: 100%; max-width: 360px; }
+    .skip-link {
+      font-size: var(--fs-body-md); color: var(--muted);
+      cursor: pointer; padding: var(--sp-sm);
+    }
+    .onboard-done {
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--sp-lg); padding: var(--sp-2xl);
+    }
+    .onboard-done .done-icon {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--accent-light); color: var(--accent);
+      display: grid; place-items: center; font-size: 48px;
+      animation: pulse-breath 2s ease-in-out infinite;
+    }
+    @keyframes pulse-breath {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell" style="min-height:100vh;">
+
+  <!-- Step Indicator -->
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-dot active" data-step="1"></div>
+    <div class="step-dot" data-step="2"></div>
+    <div class="step-dot" data-step="3"></div>
+  </div>
+
+  <div class="onboard-container">
+
+    <!-- Step 1: 设定目标 -->
+    <div class="onboard-step active" id="step1">
+      <div class="onboard-body">
+        <div class="onboard-hero">
+          <div class="o-icon">🎯</div>
+          <div class="o-title">设定你的目标</div>
+          <div class="o-desc">告诉我你的身体数据和目标，我来帮你制定每日营养计划</div>
+        </div>
+        <div class="onboard-form">
+          <div class="o-input-row">
+            <label>身高</label>
+            <input type="number" value="175" />
+            <span class="unit">cm</span>
+          </div>
+          <div class="o-input-row">
+            <label>体重</label>
+            <input type="number" value="72" />
+            <span class="unit">kg</span>
+          </div>
+        </div>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn btn-primary" onclick="nextStep(2)">下一步 →</button>
+        <span class="skip-link" onclick="finish()">跳过</span>
+      </div>
+    </div>
+
+    <!-- Step 2: 选择目标类型 -->
+    <div class="onboard-step" id="step2">
+      <div class="onboard-body">
+        <div class="onboard-hero">
+          <div class="o-icon">⚖️</div>
+          <div class="o-title">目标类型</div>
+          <div class="o-desc">选择你的体重管理目标，我会自动计算每日热量</div>
+        </div>
+        <div class="onboard-form">
+          <div class="o-radio-group" id="goalRadios">
+            <div class="o-radio" onclick="selectRadio(this)">
+              <div class="o-radio-dot"></div>
+              <div><div class="o-label">快速减脂</div><div class="o-sub">-0.75kg / 周</div></div>
+            </div>
+            <div class="o-radio selected" onclick="selectRadio(this)">
+              <div class="o-radio-dot"></div>
+              <div><div class="o-label">稳步减脂</div><div class="o-sub">-0.5kg / 周 · 推荐</div></div>
+            </div>
+            <div class="o-radio" onclick="selectRadio(this)">
+              <div class="o-radio-dot"></div>
+              <div><div class="o-label">维持体重</div><div class="o-sub">保持当前体重</div></div>
+            </div>
+            <div class="o-radio" onclick="selectRadio(this)">
+              <div class="o-radio-dot"></div>
+              <div><div class="o-label">缓慢增肌</div><div class="o-sub">+0.25kg / 周</div></div>
+            </div>
+            <div class="o-radio" onclick="selectRadio(this)">
+              <div class="o-radio-dot"></div>
+              <div><div class="o-label">快速增肌</div><div class="o-sub">+0.5kg / 周</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn btn-primary" onclick="nextStep(3)">下一步 →</button>
+        <span class="skip-link" onclick="finish()">跳过</span>
+      </div>
+    </div>
+
+    <!-- Step 3: 完成 -->
+    <div class="onboard-step" id="step3">
+      <div class="onboard-body">
+        <div class="onboard-hero">
+          <div class="o-icon">🥗</div>
+          <div class="o-title">一切就绪！</div>
+          <div class="o-desc">
+            <p>每日目标热量：<strong style="color:var(--accent);">1,800 kcal</strong></p>
+            <p style="margin-top:8px;">蛋白质 100g · 碳水 150g · 脂肪 65g</p>
+          </div>
+        </div>
+        <div class="onboard-done">
+          <div class="done-icon">✅</div>
+        </div>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn btn-primary" onclick="finish()">开始使用食记</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  let currentStep = 1;
+
+  function nextStep(n) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    document.getElementById('step' + n).classList.add('active');
+    currentStep = n;
+    updateDots();
+  }
+
+  function updateDots() {
+    document.querySelectorAll('#stepIndicator .step-dot').forEach(dot => {
+      const s = parseInt(dot.dataset.step);
+      dot.classList.remove('active', 'done');
+      if (s < currentStep) dot.classList.add('done');
+      if (s === currentStep) dot.classList.add('active');
+    });
+  }
+
+  function selectRadio(el) {
+    el.parentElement.querySelectorAll('.o-radio').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function finish() {
+    window.location.href = 'home.html';
+  }
+</script>
+</body>
+</html>

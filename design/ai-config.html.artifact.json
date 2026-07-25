@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "ai-config.html",
+  "entry": "ai-config.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-13T15:58:44.448Z",
+  "updatedAt": "2026-07-13T15:58:44.448Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

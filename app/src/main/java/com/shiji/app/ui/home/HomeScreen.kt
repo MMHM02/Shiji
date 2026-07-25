@@ -1,0 +1,181 @@
+package com.shiji.app.ui.home
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import com.shiji.app.ui.components.*
+import com.shiji.app.ui.theme.*
+import com.shiji.core.common.util.PortionConverter
+import com.shiji.core.data.entity.FoodRecordEntity
+import java.util.Calendar
+
+@Composable
+fun HomeScreen(
+    todayRecords: List<FoodRecordEntity> = emptyList(),
+    calorieTarget: Float = 2000f,
+    proteinTarget: Float = 60f,
+    carbsTarget: Float = 250f,
+    fatTarget: Float = 65f,
+    onNavigateToCamera: () -> Unit = {},
+    onNavigateToTextRecord: () -> Unit = {},
+    onNavigateToVoice: () -> Unit = {},
+    onNavigateToManual: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToDietLog: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val dailyTarget = calorieTarget
+    val totalCal = todayRecords.sumOf { it.calories }.toFloat()
+    val totalProtein = todayRecords.sumOf { it.proteinGrams }.toFloat()
+    val totalCarbs = todayRecords.sumOf { it.carbsGrams }.toFloat()
+    val totalFat = todayRecords.sumOf { it.fatGrams }.toFloat()
+
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Column {
+                        Text("今天", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(getTodayLabel(), style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold, letterSpacing = (-0.01).em)
+                    }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Filled.Settings, "设置", tint = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+            }
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            // Calories Ring
+            item {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CaloriesRing(intake = totalCal, target = dailyTarget, size = 240.dp,
+                        modifier = Modifier.padding(vertical = 16.dp))
+                }
+            }
+
+            // Nutrient Cards
+            item {
+                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    NutrientCard(label = "蛋白质", value = totalProtein, unit = "g", target = proteinTarget,
+                        color = Protein, modifier = Modifier.weight(1f))
+                    NutrientCard(label = "碳水", value = totalCarbs, unit = "g", target = carbsTarget,
+                        color = Carbs, modifier = Modifier.weight(1f))
+                    NutrientCard(label = "脂肪", value = totalFat, unit = "g", target = fatTarget,
+                        color = Fat, modifier = Modifier.weight(1f))
+                }
+            }
+
+            // Quick Entry Cards — 4 entry points incl. voice
+            item {
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        QuickEntryCard(icon = Icons.Filled.CameraAlt, label = "拍照识食",
+                            onClick = onNavigateToCamera, modifier = Modifier.weight(1f))
+                        QuickEntryCard(icon = Icons.Filled.Mic, label = "语音记录",
+                            onClick = onNavigateToVoice, modifier = Modifier.weight(1f))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        QuickEntryCard(icon = Icons.Outlined.Create, label = "文字记录",
+                            onClick = onNavigateToTextRecord, modifier = Modifier.weight(1f))
+                        QuickEntryCard(icon = Icons.Filled.EditNote, label = "手动记录",
+                            onClick = onNavigateToManual, modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+
+            // Section Header
+            item {
+                Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text("今日饮食", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                    TextButton(onClick = onNavigateToDietLog) {
+                        Text("查看全部 →", color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
+
+            // Food list or empty
+            if (todayRecords.isEmpty()) {
+                item {
+                    EmptyState(icon = "🍽️", title = "还没有记录",
+                        description = "点击上方按钮开始记录你的第一餐",
+                        actionLabel = "文字记录", onAction = onNavigateToTextRecord)
+                }
+            } else {
+                // Group by meal
+                val mealOrder = listOf("BREAKFAST", "LUNCH", "SNACK", "DINNER")
+                val grouped = todayRecords.groupBy { it.mealType }
+                mealOrder.forEach { mealType ->
+                    val meals = grouped[mealType] ?: return@forEach
+                    val subtotal = meals.sumOf { it.calories }.toInt()
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(PortionConverter.mealTypeDisplay(mealType), style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${meals.first().recordTime} · ${subtotal} kcal", style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    items(meals) { record ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text(PortionConverter.mealTypeEmoji(record.mealType), style = MaterialTheme.typography.titleLarge)
+                                Spacer(Modifier.width(12.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(record.foodName, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyLarge)
+                                    Text("${record.portion.toInt()}${record.portionUnit}",
+                                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Text("${record.calories.toInt()}", fontFamily = FontFamily.Monospace,
+                                    style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = Calories)
+                                Text(" kcal", style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            }
+            item { Spacer(Modifier.height(16.dp)) }
+        }
+    }
+}
+
+private fun getTodayLabel(): String {
+    val cal = Calendar.getInstance()
+    val month = cal.get(Calendar.MONTH) + 1
+    val day = cal.get(Calendar.DAY_OF_MONTH)
+    val dayOfWeek = when (cal.get(Calendar.DAY_OF_WEEK)) {
+        Calendar.MONDAY -> "周一"; Calendar.TUESDAY -> "周二"; Calendar.WEDNESDAY -> "周三"
+        Calendar.THURSDAY -> "周四"; Calendar.FRIDAY -> "周五"; Calendar.SATURDAY -> "周六"
+        else -> "周日"
+    }
+    return "${month}月${day}日 $dayOfWeek"
+}

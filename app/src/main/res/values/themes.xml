@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Base application theme for 食记 (ShiJi).
+        This is the XML theme that the Android system uses before Compose takes over.
+        The visual styling is handled by ShiJiTheme.kt (Material 3 Compose).
+    -->
+    <style name="Theme.ShiJi" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+</resources>

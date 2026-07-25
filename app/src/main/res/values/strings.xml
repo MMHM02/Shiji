@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">食记</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">首页</string>
+    <string name="nav_data">数据</string>
+    <string name="nav_profile">我的</string>
+
+    <!-- Diet -->
+    <string name="diet_log">饮食日志</string>
+    <string name="camera_capture">拍照识食</string>
+    <string name="voice_record">语音记录</string>
+    <string name="manual_entry">手动添加</string>
+    <string name="food_name">食物名称</string>
+    <string name="calories">热量</string>
+    <string name="portion">份量</string>
+
+    <!-- Health -->
+    <string name="health_tracking">健康追踪</string>
+    <string name="weight">体重</string>
+    <string name="exercise">运动</string>
+    <string name="water">水分</string>
+
+    <!-- AI -->
+    <string name="ai_config">AI 配置</string>
+    <string name="api_key">API Key</string>
+    <string name="model_selection">模型选择</string>
+    <string name="vision_model">视觉模型</string>
+    <string name="text_model">文本模型</string>
+
+    <!-- Common -->
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="retry">重试</string>
+    <string name="loading">加载中…</string>
+    <string name="widget_description">食记 — 今日热量圆环，快速查看饮食进度</string>
+</resources>

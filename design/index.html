@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>食记 — 设计稿总览</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      padding: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .launcher-header {
+      text-align: center; padding: 48px 0 32px;
+    }
+    .launcher-header .app-name {
+      font-size: 48px; font-weight: 700; color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    .launcher-header .app-desc {
+      font-size: 18px; color: var(--muted); margin-top: 8px;
+    }
+    .launcher-header .app-badge {
+      display: inline-flex; gap: 8px; margin-top: 16px;
+    }
+    .launcher-header .badge {
+      padding: 4px 12px; border-radius: var(--r-full);
+      font-size: 13px; font-weight: 500;
+      background: var(--accent-light); color: var(--accent-dark);
+    }
+    .screen-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px; padding: 16px 0;
+    }
+    .screen-card {
+      background: var(--surface); border-radius: var(--r-lg);
+      border: 1px solid var(--divider); overflow: hidden;
+      text-decoration: none; color: var(--fg);
+      transition: box-shadow 0.2s, transform 0.15s;
+      box-shadow: var(--elevation-1);
+    }
+    .screen-card:hover {
+      box-shadow: var(--elevation-3); transform: translateY(-2px);
+    }
+    .screen-card .sc-preview {
+      height: 140px; display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+    }
+    .screen-card .sc-preview.home-prev { background: linear-gradient(135deg, #C8E6C9, #E8F5E9); }
+    .screen-card .sc-preview.data-prev { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); }
+    .screen-card .sc-preview.profile-prev { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); }
+    .screen-card .sc-preview.camera-prev { background: linear-gradient(135deg, #1a1a1a, #333); }
+    .screen-card .sc-preview.voice-prev { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+    .screen-card .sc-preview.aiconfig-prev { background: linear-gradient(135deg, #FFF3E0, #FFE0B2); }
+    .screen-card .sc-preview.dietlog-prev { background: linear-gradient(135deg, #FCE4EC, #F8BBD0); }
+    .screen-card .sc-preview.onboard-prev { background: linear-gradient(135deg, #E8F5E9, #FFF9C4); }
+    .screen-card .sc-info {
+      padding: 12px 16px;
+    }
+    .screen-card .sc-label {
+      font-size: 15px; font-weight: 600;
+    }
+    .screen-card .sc-meta {
+      font-size: 12px; color: var(--muted); margin-top: 4px;
+    }
+    .info-box {
+      background: var(--surface); border: 1px solid var(--divider);
+      border-radius: var(--r-lg); padding: 20px; margin: 32px 0;
+    }
+    .info-box h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    .info-box ul { padding-left: 20px; font-size: 14px; color: var(--muted); line-height: 1.8; }
+    .theme-bar {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 16px 0;
+    }
+    .theme-bar button {
+      padding: 8px 20px; border-radius: var(--r-full);
+      border: 1px solid var(--divider); background: var(--surface);
+      font-size: 14px; cursor: pointer; font-family: var(--font-body); color: var(--fg);
+    }
+    .theme-bar button.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  </style>
+</head>
+<body data-theme="light">
+
+<div class="launcher-header">
+  <div class="app-name">🥗 食记 ShiJi</div>
+  <div class="app-desc">AI 驱动的饮食记录 App · Android Material 3 设计</div>
+  <div class="app-badge">
+    <span class="badge">Material 3</span>
+    <span class="badge">Android 8.0+</span>
+    <span class="badge">浅色 + 深色</span>
+    <span class="badge">8 个页面</span>
+  </div>
+</div>
+
+<div class="theme-bar">
+  <button class="active" onclick="setTheme('light')" id="btnLight">☀️ 浅色模式</button>
+  <button onclick="setTheme('dark')" id="btnDark">🌙 深色模式</button>
+</div>
+
+<div class="screen-grid">
+  <a class="screen-card" href="home.html">
+    <div class="sc-preview home-prev">🏠</div>
+    <div class="sc-info">
+      <div class="sc-label">首页仪表盘</div>
+      <div class="sc-meta">热量圆环 · 快捷入口 · 今日饮食</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="data.html">
+    <div class="sc-preview data-prev">📊</div>
+    <div class="sc-info">
+      <div class="sc-label">数据看板</div>
+      <div class="sc-meta">趋势图 · AI 建议 · 统计卡片</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="profile.html">
+    <div class="sc-preview profile-prev">👤</div>
+    <div class="sc-info">
+      <div class="sc-label">我的</div>
+      <div class="sc-meta">个人资料 · 设置 · 深色模式开关</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="camera.html">
+    <div class="sc-preview camera-prev" style="color:#fff;">📸</div>
+    <div class="sc-info">
+      <div class="sc-label">拍照识食</div>
+      <div class="sc-meta">取景 → AI 分析 → 结果确认</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="voice.html">
+    <div class="sc-preview voice-prev">🎤</div>
+    <div class="sc-info">
+      <div class="sc-label">语音记录</div>
+      <div class="sc-meta">按住说话 · ASR 实时识别</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="ai-config.html">
+    <div class="sc-preview aiconfig-prev">🔑</div>
+    <div class="sc-info">
+      <div class="sc-label">AI 模型配置</div>
+      <div class="sc-meta">提供商选择 · Key 管理 · 用量统计</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="diet-log.html">
+    <div class="sc-preview dietlog-prev">📋</div>
+    <div class="sc-info">
+      <div class="sc-label">饮食日志</div>
+      <div class="sc-meta">日期切换 · 餐次分组 · 热量汇总</div>
+    </div>
+  </a>
+
+  <a class="screen-card" href="onboarding.html">
+    <div class="sc-preview onboard-prev">🎯</div>
+    <div class="sc-info">
+      <div class="sc-label">首次启动引导</div>
+      <div class="sc-meta">3 步引导 · 设定目标 · 可跳过</div>
+    </div>
+  </a>
+</div>
+
+<div class="info-box">
+  <h3>📐 设计规范摘要</h3>
+  <ul>
+    <li><strong>品牌色：</strong>健康绿 #4CAF50，搭配中性灰 Material 3 调色板</li>
+    <li><strong>字体：</strong>Noto Sans SC（中文）/ Roboto（英文），Roboto Mono（数字）</li>
+    <li><strong>圆角：</strong>16dp 标准卡片 · 12dp 输入框 · 8dp 按钮 · 全圆角胶囊</li>
+    <li><strong>间距：</strong>4dp 栅格系统（8 / 16 / 24 / 32 / 48dp）</li>
+    <li><strong>图标：</strong>Material Icons 线性风格，导航 24dp · 列表 20dp · 按钮 18dp</li>
+    <li><strong>动效：</strong>微交互为主（点击缩放 96% · 800ms 缓出圆环 · 列表过渡）</li>
+    <li><strong>组件覆盖：</strong>Button / Card / Input / Chip / BottomSheet / Dialog / Snackbar / Loading / Empty / Progress / Ring Chart / Line Chart 等 12+ 组件含状态</li>
+  </ul>
+</div>
+
+<script>
+  function setTheme(t) {
+    document.body.setAttribute('data-theme', t);
+    document.getElementById('btnLight').classList.toggle('active', t === 'light');
+    document.getElementById('btnDark').classList.toggle('active', t === 'dark');
+    // Pass theme to iframe-like screens via localStorage
+    localStorage.setItem('shiji-theme', t);
+  }
+  // Apply stored theme
+  const stored = localStorage.getItem('shiji-theme') || 'light';
+  setTheme(stored);
+</script>
+</body>
+</html>

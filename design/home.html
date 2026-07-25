@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 首页</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    /* ---- Hero ring area ---- */
+    .ring-hero { display: flex; justify-content: center; padding: var(--sp-lg) 0 var(--sp-sm); }
+    .ring-chart { width: 240px; height: 240px; }
+
+    /* ---- Nutrient cards row ---- */
+    .nutrient-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-sm); padding: 0 0 var(--sp-lg); }
+    .n-card {
+      background: var(--surface); border-radius: var(--r-lg); padding: var(--sp-md);
+      border: 1px solid var(--divider); box-shadow: var(--elevation-1);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .n-card .nc-head { display: flex; align-items: center; gap: 6px; }
+    .n-card .nc-icon {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .n-card .nc-label { font-size: var(--fs-label); font-weight: 500; color: var(--muted); letter-spacing: 0.02em; }
+    .n-card .nc-value { font-family: var(--font-mono); font-size: var(--fs-title); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .n-card .nc-sub { font-size: var(--fs-body-sm); color: var(--muted); }
+    .n-card .nc-bar { height: 4px; border-radius: 2px; background: var(--surface-variant); margin-top: 4px; overflow: hidden; }
+    .n-card .nc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease-out; }
+
+    /* ---- Quick entry row ---- */
+    .quick-entry-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-sm);
+      margin: 0 0 var(--sp-lg);
+    }
+    .qe-card {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: var(--sp-lg) var(--sp-sm); border-radius: var(--r-lg);
+      background: var(--surface); border: 1px solid var(--divider);
+      box-shadow: var(--elevation-1); cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s, border-color 0.2s;
+      text-decoration: none; color: var(--fg);
+    }
+    .qe-card:active { transform: scale(0.96); }
+    .qe-card .qe-icon-wrap {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--accent-light); color: var(--accent-dark);
+    }
+    .qe-card .qe-icon-wrap svg { width: 24px; height: 24px; }
+    .qe-card .qe-label { font-size: var(--fs-body-sm); font-weight: 600; text-align: center; }
+
+    /* ---- Food list area ---- */
+    .today-foods { display: flex; flex-direction: column; gap: var(--sp-sm); }
+    .meal-section { margin-bottom: var(--sp-sm); }
+    .meal-header {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-sm) 0; color: var(--muted);
+      font-size: var(--fs-body-sm); font-weight: 500;
+    }
+    .meal-time { font-family: var(--font-mono); font-size: var(--fs-body-sm); color: var(--muted); margin-left: auto; }
+
+    /* Food item — refined hover */
+    .food-row {
+      display: flex; align-items: center; gap: var(--sp-md);
+      padding: var(--sp-md); background: var(--surface);
+      border-radius: var(--r-lg); box-shadow: var(--elevation-1);
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+      border: 1px solid var(--divider);
+    }
+    .food-row:hover { box-shadow: var(--elevation-2); background: var(--surface-variant); }
+    .food-row:active { transform: scale(0.985); }
+    .food-row .fr-emoji {
+      width: 44px; height: 44px; border-radius: var(--r-md);
+      background: var(--surface-variant); display: grid; place-items: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .food-row .fr-info { flex: 1; min-width: 0; }
+    .food-row .fr-title { font-size: var(--fs-body-lg); font-weight: 600; color: var(--fg); }
+    .food-row .fr-detail { font-size: var(--fs-body-sm); color: var(--muted); margin-top: 2px; }
+    .food-row .fr-kcal {
+      text-align: right; flex-shrink: 0;
+      font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+      font-size: var(--fs-body-lg); font-weight: 600; color: var(--calories);
+    }
+    .food-row .fr-kcal .unit { font-size: var(--fs-body-sm); font-weight: 400; color: var(--muted); }
+    .food-row .swipe-del {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 72px; background: var(--error); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--fs-body-sm); font-weight: 600;
+      border-radius: 0 var(--r-lg) var(--r-lg) 0;
+      transform: translateX(100%); transition: transform 0.2s;
+    }
+    .food-row.swiped .swipe-del { transform: translateX(0); }
+    .food-row.swiped { transform: translateX(-72px); }
+
+    /* ---- Ring animation states ---- */
+    .ring-glow {
+      filter: drop-shadow(0 0 8px rgba(76,175,80,0.25));
+      transition: filter 0.3s;
+    }
+    .ring-complete .ring-glow {
+      filter: drop-shadow(0 0 14px rgba(76,175,80,0.45));
+    }
+    .ring-value-pop { transition: transform 0.15s ease-out; }
+    .ring-complete .ring-value-pop { transform: scale(1.08); }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="font-size:12px;">📶 ▮▮▮▮ 🔋 85%</span>
+  </div>
+
+  <!-- M3 Top App Bar — large date title -->
+  <div class="top-bar" style="height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:12px;align-items:flex-start;">
+    <div style="width:100%;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:var(--fs-body-sm);color:var(--muted);font-weight:500;">今天</div>
+        <div style="font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.01em;">6月25日 周四</div>
+      </div>
+      <button class="action" onclick="toggleShijiTheme()" aria-label="设置" style="margin-top:4px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- ====== 热量圆环 (240px, restrained) ====== -->
+    <div class="ring-hero">
+      <div class="ring-chart" id="ringChart">
+        <svg width="240" height="240" viewBox="0 0 240 240">
+          <!-- Track -->
+          <circle cx="120" cy="120" r="104" fill="none"
+            stroke="var(--surface-variant)" stroke-width="16" />
+          <!-- Progress — color set via JS -->
+          <circle cx="120" cy="120" r="104" fill="none"
+            stroke="#4CAF50" stroke-width="16" stroke-linecap="round"
+            stroke-dasharray="653.45" stroke-dashoffset="653.45"
+            id="ringFill" class="ring-glow"
+            style="transition: stroke-dashoffset 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);" />
+        </svg>
+        <div class="ring-center">
+          <span class="ring-value ring-value-pop" id="ringKcal">0</span>
+          <span class="ring-label">/ 2,000 kcal</span>
+          <span class="ring-pct" id="ringPct">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 营养素卡片行 ====== -->
+    <div class="nutrient-row">
+      <div class="n-card">
+        <div class="nc-head">
+          <div class="nc-icon" style="background:var(--protein);"></div>
+          <span class="nc-label">蛋白质</span>
+        </div>
+        <div class="nc-value" style="color:var(--protein);">80<span style="font-size:14px;font-weight:500;">g</span></div>
+        <div class="nc-sub">目标 100g</div>
+        <div class="nc-bar"><div class="nc-bar-fill" style="width:80%;background:var(--protein);"></div></div>
+      </div>
+      <div class="n-card">
+        <div class="nc-head">
+          <div class="nc-icon" style="background:var(--carbs);"></div>
+          <span class="nc-label">碳水</span>
+        </div>
+        <div class="nc-value" style="color:var(--carbs);">150<span style="font-size:14px;font-weight:500;">g</span></div>
+        <div class="nc-sub">目标 150g</div>
+        <div class="nc-bar"><div class="nc-bar-fill" style="width:100%;background:var(--carbs);"></div></div>
+      </div>
+      <div class="n-card">
+        <div class="nc-head">
+          <div class="nc-icon" style="background:var(--fat);"></div>
+          <span class="nc-label">脂肪</span>
+        </div>
+        <div class="nc-value" style="color:var(--fat);">45<span style="font-size:14px;font-weight:500;">g</span></div>
+        <div class="nc-sub">目标 65g</div>
+        <div class="nc-bar"><div class="nc-bar-fill" style="width:69%;background:var(--fat);"></div></div>
+      </div>
+    </div>
+
+    <!-- ====== 快捷入口 (Material Icons SVG) ====== -->
+    <div class="quick-entry-grid">
+      <a href="camera.html" class="qe-card">
+        <div class="qe-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <div class="qe-label">拍照识食</div>
+      </a>
+      <a href="voice.html" class="qe-card">
+        <div class="qe-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+            <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </div>
+        <div class="qe-label">语音记录</div>
+      </a>
+      <a href="diet-log.html" class="qe-card">
+        <div class="qe-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="qe-label">手动记录</div>
+      </a>
+    </div>
+
+    <!-- ====== 今日饮食 ====== -->
+    <div class="section-header">
+      <span class="sh-title">今日饮食</span>
+      <a class="sh-link" href="diet-log.html">查看全部 →</a>
+    </div>
+
+    <div class="today-foods">
+      <!-- 早餐 -->
+      <div class="meal-section">
+        <div class="meal-header">🥣 早餐<span class="meal-time">08:30 · 450 kcal</span></div>
+        <div class="food-row">
+          <div class="fr-emoji">🥛</div>
+          <div class="fr-info">
+            <div class="fr-title">牛奶 + 全麦面包 + 鸡蛋</div>
+            <div class="fr-detail">牛奶 200ml · 面包 2片 · 鸡蛋 1个</div>
+          </div>
+          <div class="fr-kcal">450<span class="unit"> kcal</span></div>
+          <div class="swipe-del" onclick="event.stopPropagation();removeItem(this)">删除</div>
+        </div>
+      </div>
+
+      <!-- 午餐 -->
+      <div class="meal-section">
+        <div class="meal-header">🍱 午餐<span class="meal-time">12:15 · 620 kcal</span></div>
+        <div class="food-row">
+          <div class="fr-emoji">🍛</div>
+          <div class="fr-info">
+            <div class="fr-title">宫保鸡丁盖饭 + 紫菜汤</div>
+            <div class="fr-detail">盖饭 1份 · 紫菜汤 1碗</div>
+          </div>
+          <div class="fr-kcal">620<span class="unit"> kcal</span></div>
+          <div class="swipe-del" onclick="event.stopPropagation();removeItem(this)">删除</div>
+        </div>
+      </div>
+
+      <!-- 加餐 -->
+      <div class="meal-section">
+        <div class="meal-header">🍎 加餐<span class="meal-time">15:30 · 180 kcal</span></div>
+        <div class="food-row">
+          <div class="fr-emoji">🍎</div>
+          <div class="fr-info">
+            <div class="fr-title">苹果 + 酸奶</div>
+            <div class="fr-detail">苹果 1个 · 酸奶 1杯</div>
+          </div>
+          <div class="fr-kcal">180<span class="unit"> kcal</span></div>
+          <div class="swipe-del" onclick="event.stopPropagation();removeItem(this)">删除</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Bottom Navigation (Material Icons SVG) ====== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active">
+      <span class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      </span>首页
+    </button>
+    <a class="nav-item" href="data.html">
+      <span class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      </span>数据
+    </a>
+    <a class="nav-item" href="profile.html">
+      <span class="nav-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>我的
+    </a>
+  </nav>
+
+</div>
+
+<script>
+  // ============================================================
+  // Ring chart — 240px · restrained precision style
+  // intake=1250, target=2000 → 62.5%
+  // Green below target, amber warning at 90%+, red over target
+  // ============================================================
+  (function() {
+    const intake = 1250, target = 2000;
+    const pct = Math.min(intake / target, 1);
+    const circumference = 104 * 2 * Math.PI; // ≈ 653.45
+    const offset = circumference * (1 - pct);
+
+    // Color logic: green ≤ 90%, amber 90-100%, red > 100%
+    const ringFill = document.getElementById('ringFill');
+    if (pct >= 1) {
+      ringFill.setAttribute('stroke', '#F44336'); // error red
+    } else if (pct >= 0.9) {
+      ringFill.setAttribute('stroke', '#FF9800'); // warning amber
+    } else {
+      ringFill.setAttribute('stroke', '#4CAF50'); // green
+    }
+
+    setTimeout(() => {
+      ringFill.style.strokeDashoffset = offset;
+      animateNumber('ringKcal', 0, intake, 800);
+      document.getElementById('ringPct').textContent = Math.round(pct * 100) + '%';
+
+      // Completion flourish — glow + number pop, settles after 400ms
+      setTimeout(() => {
+        document.getElementById('ringChart').classList.add('ring-complete');
+        setTimeout(() => {
+          document.getElementById('ringChart').classList.remove('ring-complete');
+        }, 400);
+      }, 850);
+    }, 300);
+  })();
+
+  function animateNumber(id, from, to, dur) {
+    const el = document.getElementById(id);
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from) * eased).toLocaleString();
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Theme toggle via shared helper
+  function toggleShijiTheme() {
+    var next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('shiji-theme', next);
+  }
+
+  // Restore theme on load
+  (function() {
+    var stored = localStorage.getItem('shiji-theme');
+    if (stored) document.body.setAttribute('data-theme', stored);
+  })();
+
+  // Swipe to reveal delete
+  document.querySelectorAll('.food-row').forEach(el => {
+    let startX = 0;
+    el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    el.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - startX;
+      if (dx < -30) el.classList.add('swiped');
+      else if (dx > 30) el.classList.remove('swiped');
+    });
+    el.addEventListener('touchend', () => {});
+    el.addEventListener('click', function() {
+      if (this.classList.contains('swiped')) this.classList.remove('swiped');
+    });
+  });
+
+  function removeItem(delBtn) {
+    const row = delBtn.parentElement;
+    row.style.transition = 'transform 0.2s, opacity 0.2s, max-height 0.3s';
+    row.style.transform = 'translateX(-100%)';
+    row.style.opacity = '0';
+    row.style.maxHeight = '0';
+    row.style.margin = '0';
+    row.style.padding = '0';
+    row.style.border = 'none';
+    setTimeout(() => row.remove(), 300);
+  }
+</script>
+</body>
+</html>

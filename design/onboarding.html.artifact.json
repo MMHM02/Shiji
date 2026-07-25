@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "onboarding.html",
+  "entry": "onboarding.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-13T15:59:50.991Z",
+  "updatedAt": "2026-07-13T15:59:50.991Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

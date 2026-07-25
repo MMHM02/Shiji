@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — AI 模型配置</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .providers { display: flex; flex-direction: column; gap: var(--sp-sm); margin-bottom: var(--sp-lg); }
+    .section-label {
+      font-size: var(--fs-body-sm); font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: var(--sp-md) 0 var(--sp-sm);
+    }
+    .key-section { margin-bottom: var(--sp-lg); }
+    .slot-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-md) 0;
+    }
+    .slot-row select {
+      padding: 8px 12px; border-radius: var(--r-md);
+      border: 1px solid var(--divider); background: var(--surface);
+      font-size: var(--fs-body-md); font-family: var(--font-body); color: var(--fg);
+    }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell">
+
+  <div class="top-bar">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="title">AI 模型配置</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- 选择 AI 提供商 -->
+    <div class="section-label">🤖 选择 AI 提供商</div>
+    <div class="providers">
+      <div class="provider-card selected" onclick="selectProvider(this)">
+        <div class="pv-icon">🧠</div>
+        <div class="pv-info">
+          <div class="pv-name">DeepSeek</div>
+          <div class="pv-desc">文本对话、食物解析推荐 · V3</div>
+        </div>
+        <div class="pv-radio"></div>
+      </div>
+      <div class="provider-card" onclick="selectProvider(this)">
+        <div class="pv-icon">🌙</div>
+        <div class="pv-info">
+          <div class="pv-name">Kimi (Moonshot)</div>
+          <div class="pv-desc">长上下文、文本对话</div>
+        </div>
+        <div class="pv-radio"></div>
+      </div>
+      <div class="provider-card" onclick="selectProvider(this)">
+        <div class="pv-icon">☁️</div>
+        <div class="pv-info">
+          <div class="pv-name">通义千问 (Qwen)</div>
+          <div class="pv-desc">文本对话，部分视觉</div>
+        </div>
+        <div class="pv-radio"></div>
+      </div>
+      <div class="provider-card" onclick="selectProvider(this)">
+        <div class="pv-icon">🔷</div>
+        <div class="pv-info">
+          <div class="pv-name">智谱 GLM</div>
+          <div class="pv-desc">文本 + 视觉多模态</div>
+        </div>
+        <div class="pv-radio"></div>
+      </div>
+      <div class="provider-card" onclick="selectProvider(this)">
+        <div class="pv-icon">🔌</div>
+        <div class="pv-info">
+          <div class="pv-name">自定义端点</div>
+          <div class="pv-desc">OpenAI 兼容 API，可接入 GPT-4o</div>
+        </div>
+        <div class="pv-radio"></div>
+      </div>
+    </div>
+
+    <!-- API Key -->
+    <div class="section-label">🔑 API Key</div>
+    <div class="key-section">
+      <div class="key-display" id="keyDisplay">
+        <span class="key-text" id="keyText">sk-••••••••••••••••</span>
+        <button class="key-toggle" onclick="toggleKey()" aria-label="显示/隐藏">👁️</button>
+        <button class="key-delete" onclick="clearKey()" aria-label="删除">🗑️</button>
+      </div>
+    </div>
+
+    <!-- 测试连接 -->
+    <div class="conn-test" onclick="testConnection()">
+      <span style="flex:1;font-weight:500;">🔌 测试连接</span>
+      <span id="connStatus" style="font-size:var(--fs-body-sm);color:var(--muted);">点击测试</span>
+    </div>
+
+    <!-- 模型槽位 -->
+    <div class="section-label">⚙️ 模型槽位</div>
+    <div class="slot-row">
+      <span style="font-weight:500;">视觉模型</span>
+      <select>
+        <option>自定义端点 (GPT-4o)</option>
+        <option>智谱 GLM</option>
+      </select>
+    </div>
+    <div class="slot-row">
+      <span style="font-weight:500;">文本模型</span>
+      <select>
+        <option selected>DeepSeek</option>
+        <option>Kimi (Moonshot)</option>
+        <option>通义千问</option>
+      </select>
+    </div>
+
+    <!-- 用量统计 -->
+    <div class="section-label">📊 用量统计</div>
+    <div class="card" style="margin-bottom:var(--sp-lg);">
+      <div style="display:flex;justify-content:space-between;padding:var(--sp-sm) 0;">
+        <span class="text-muted">本月调用</span>
+        <span class="mono-num fw-bold">156 次</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:var(--sp-sm) 0;">
+        <span class="text-muted">估算费用</span>
+        <span class="mono-num fw-bold">≈ ¥0.36</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function selectProvider(el) {
+    document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  let keyShown = false;
+  const realKey = 'sk-d18f3a9b7c2e4567890abcdef123456';
+  function toggleKey() {
+    keyShown = !keyShown;
+    document.getElementById('keyText').textContent = keyShown ? realKey : 'sk-••••••••••••••••';
+  }
+
+  function clearKey() {
+    document.getElementById('keyText').textContent = '(未设置)';
+  }
+
+  function testConnection() {
+    const status = document.getElementById('connStatus');
+    status.textContent = '测试中...';
+    status.style.color = 'var(--warning)';
+    setTimeout(() => {
+      status.textContent = '✅ 连接成功';
+      status.style.color = 'var(--success)';
+    }, 1500);
+  }
+</script>
+</body>
+</html>

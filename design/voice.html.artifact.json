@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "voice.html",
+  "entry": "voice.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-13T15:58:20.325Z",
+  "updatedAt": "2026-07-13T15:58:20.325Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

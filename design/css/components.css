@@ -1,0 +1,774 @@
+/* ============================================================
+   食记 (ShiJi) — Component Library
+   Material 3 style · 12+ reusable components
+   ============================================================ */
+
+/* ============================================================
+   App Shell — phone frame wrapper
+   ============================================================ */
+.app-shell {
+  max-width: 412px; min-height: 100vh;
+  margin: 0 auto;
+  background: var(--bg);
+  position: relative;
+  overflow-x: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* Status Bar */
+.status-bar {
+  height: var(--status-bar-h);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--sp-md);
+  font-size: var(--fs-body-sm);
+  font-weight: 500;
+  color: var(--fg);
+}
+
+/* Top App Bar */
+.top-bar {
+  height: var(--nav-bar-h);
+  background: var(--bg);
+  display: flex; align-items: center;
+  padding: 0 var(--sp-md);
+  gap: var(--sp-sm);
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid transparent;
+}
+.top-bar.scrolled { border-bottom-color: var(--divider); box-shadow: var(--elevation-8); }
+.top-bar .back-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  border: none; background: transparent; color: var(--fg);
+  font-size: 20px; transition: background 0.15s;
+}
+.top-bar .back-btn:hover { background: rgba(128,128,128,0.12); }
+.top-bar .title {
+  flex: 1; font-size: var(--fs-headline); font-weight: 600;
+  line-height: var(--lh-headline); color: var(--fg);
+}
+.top-bar .action {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  border: none; background: transparent; color: var(--fg);
+  font-size: 20px; transition: background 0.15s;
+}
+.top-bar .action:hover { background: rgba(128,128,128,0.12); }
+
+/* ============================================================
+   Bottom Navigation Bar
+   ============================================================ */
+.bottom-nav {
+  height: var(--bottom-nav-h);
+  background: var(--surface);
+  display: flex; align-items: center;
+  border-top: 1px solid var(--divider);
+  position: sticky; bottom: 0; z-index: 100;
+  padding: 0 var(--sp-sm);
+}
+.bottom-nav .nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: var(--sp-sm) 0; cursor: pointer; border: none; background: transparent;
+  color: var(--muted); font-size: var(--fs-label); font-weight: 500;
+  transition: color 0.2s; position: relative; text-decoration: none;
+}
+.bottom-nav .nav-item.active { color: var(--accent); }
+.bottom-nav .nav-item .nav-icon {
+  width: 24px; height: 24px; display: grid; place-items: center;
+  font-size: 22px; line-height: 1;
+}
+.bottom-nav .nav-item.active .nav-icon svg { fill: var(--accent); }
+
+/* ============================================================
+   Page Content
+   ============================================================ */
+.page-content {
+  flex: 1; padding: var(--sp-md); padding-top: var(--sp-sm);
+  overflow-y: auto; overflow-x: hidden;
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: var(--sp-md);
+  box-shadow: var(--elevation-1);
+  border: 1px solid var(--divider);
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+.card:active { transform: scale(0.98); }
+.card.selected {
+  border-color: var(--accent); border-width: 2px;
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.card.clickable { cursor: pointer; }
+.card.clickable:hover { box-shadow: var(--elevation-2); }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-xs);
+  font-family: var(--font-body); font-size: var(--fs-body-md); font-weight: 500;
+  line-height: 1; border: none; border-radius: var(--r-full); cursor: pointer;
+  padding: 12px 24px; min-height: 48px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  letter-spacing: 0.02em;
+}
+.btn:active { transform: scale(0.96); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+
+.btn-primary {
+  background: var(--accent); color: var(--on-accent);
+  box-shadow: var(--elevation-1);
+}
+.btn-primary:hover { background: var(--accent-dark); }
+
+.btn-secondary {
+  background: transparent; color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+.btn-secondary:hover { background: var(--accent-light); }
+
+.btn-ghost {
+  background: transparent; color: var(--fg);
+}
+.btn-ghost:hover { background: var(--surface-variant); }
+
+.btn-text {
+  background: transparent; color: var(--accent); min-height: auto;
+  padding: 8px 12px; border-radius: var(--r-sm);
+  font-size: var(--fs-body-md); font-weight: 500;
+}
+.btn-text:hover { background: rgba(76,175,80,0.08); }
+
+.btn-danger {
+  background: var(--error); color: #fff;
+}
+.btn-danger:hover { background: #D32F2F; }
+
+/* ============================================================
+   Input Fields
+   ============================================================ */
+.input-group {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.input-label {
+  font-size: var(--fs-body-sm); font-weight: 500; color: var(--muted);
+}
+.input {
+  width: 100%; height: 48px;
+  padding: 0 var(--sp-md);
+  background: var(--surface-variant);
+  border: 1.5px solid transparent;
+  border-bottom-color: var(--border);
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  font-family: var(--font-body); font-size: var(--fs-body-lg);
+  color: var(--fg); outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.input:focus { border-bottom-color: var(--accent); background: var(--surface); }
+.input.error { border-bottom-color: var(--error); }
+.input::placeholder { color: var(--border); }
+
+/* ============================================================
+   Chips
+   ============================================================ */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 14px; border-radius: var(--r-sm);
+  font-size: var(--fs-body-md); font-weight: 500;
+  background: var(--surface-variant); color: var(--fg);
+  border: 1px solid var(--divider); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.chip:active { transform: scale(0.96); }
+.chip.selected {
+  background: var(--accent-light); color: var(--accent-dark);
+  border-color: var(--accent);
+}
+.chip.removable { padding-right: 8px; }
+.chip .chip-close {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 14px; color: var(--muted);
+}
+.chip .chip-close:hover { background: rgba(0,0,0,0.1); }
+
+/* ============================================================
+   Progress Bar
+   ============================================================ */
+.progress-bar {
+  height: 8px; border-radius: var(--r-full);
+  background: var(--surface-variant);
+  overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%; border-radius: var(--r-full);
+  transition: width 0.6s ease-out;
+}
+.progress-bar .fill.green { background: var(--accent); }
+.progress-bar .fill.orange { background: var(--calories); }
+.progress-bar .fill.pink { background: var(--protein); }
+.progress-bar .fill.amber { background: var(--carbs); }
+.progress-bar .fill.blue { background: var(--fat); }
+.progress-bar .fill.over { background: var(--error); }
+
+/* ============================================================
+   Ring Chart (热量圆环)
+   ============================================================ */
+.ring-chart {
+  position: relative; display: grid; place-items: center;
+}
+.ring-chart svg { transform: rotate(-90deg); }
+.ring-chart .ring-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.ring-chart .ring-value {
+  font-family: var(--font-mono); font-size: var(--fs-display);
+  font-weight: 700; line-height: 1.1; color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+}
+.ring-chart .ring-label {
+  font-size: var(--fs-body-sm); color: var(--muted); font-weight: 500;
+}
+.ring-chart .ring-pct {
+  font-size: var(--fs-body-md); color: var(--accent); font-weight: 600;
+}
+
+/* ============================================================
+   Nutrient Bar (宏量营养素)
+   ============================================================ */
+.nutrient-item {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-sm) 0;
+}
+.nutrient-item .n-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 18px;
+  flex-shrink: 0;
+}
+.nutrient-item .n-info { flex: 1; min-width: 0; }
+.nutrient-item .n-label {
+  font-size: var(--fs-body-md); font-weight: 500; color: var(--fg);
+}
+.nutrient-item .n-meta {
+  font-size: var(--fs-body-sm); color: var(--muted);
+  display: flex; gap: var(--sp-sm);
+}
+.nutrient-item .n-bar {
+  height: 6px; border-radius: var(--r-full); background: var(--surface-variant);
+  margin-top: 6px; overflow: hidden;
+}
+.nutrient-item .n-bar-fill {
+  height: 100%; border-radius: var(--r-full); transition: width 0.6s ease-out;
+}
+
+/* ============================================================
+   Section Header
+   ============================================================ */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-md) 0 var(--sp-sm);
+}
+.section-header .sh-title {
+  font-size: var(--fs-title); font-weight: 600; color: var(--fg);
+}
+.section-header .sh-link {
+  font-size: var(--fs-body-md); font-weight: 500;
+  color: var(--accent); cursor: pointer; text-decoration: none;
+  padding: 4px 8px; border-radius: var(--r-sm);
+}
+.section-header .sh-link:hover { background: rgba(76,175,80,0.08); }
+
+/* ============================================================
+   Food List Item (饮食列表项)
+   ============================================================ */
+.food-item {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-md); background: var(--surface);
+  border-radius: var(--r-lg); box-shadow: var(--elevation-1);
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--divider);
+}
+.food-item:hover { box-shadow: var(--elevation-2); }
+.food-item:active { transform: scale(0.985); }
+.food-item .meal-emoji {
+  width: 44px; height: 44px; border-radius: var(--r-md);
+  background: var(--surface-variant);
+  display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+}
+.food-item .meal-info { flex: 1; min-width: 0; }
+.food-item .meal-title {
+  font-size: var(--fs-body-lg); font-weight: 600; color: var(--fg);
+}
+.food-item .meal-detail {
+  font-size: var(--fs-body-sm); color: var(--muted); margin-top: 2px;
+}
+.food-item .meal-kcal {
+  text-align: right; flex-shrink: 0;
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--fs-body-lg); font-weight: 600; color: var(--calories);
+}
+.food-item .meal-kcal .unit {
+  font-size: var(--fs-body-sm); font-weight: 400; color: var(--muted);
+}
+
+/* Swipe-delete reveal */
+.food-item .swipe-delete {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 72px; background: var(--error); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-body-md); font-weight: 600;
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  transform: translateX(100%); transition: transform 0.2s;
+}
+.food-item.swiped .swipe-delete { transform: translateX(0); }
+.food-item.swiped { transform: translateX(-72px); }
+
+/* ============================================================
+   Quick Entry Cards (快捷入口)
+   ============================================================ */
+.quick-entry-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-sm);
+  margin: var(--sp-lg) 0;
+}
+.quick-entry-card {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-sm);
+  padding: var(--sp-lg) var(--sp-sm); border-radius: var(--r-lg);
+  background: var(--surface); border: 1px solid var(--divider);
+  box-shadow: var(--elevation-1); cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  text-decoration: none; color: var(--fg);
+}
+.quick-entry-card:active { transform: scale(0.96); }
+.quick-entry-card .qe-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 24px;
+  background: var(--accent-light);
+}
+.quick-entry-card .qe-label {
+  font-size: var(--fs-body-sm); font-weight: 600; text-align: center;
+}
+[data-theme="dark"] .quick-entry-card .qe-icon { background: var(--accent-light); }
+
+/* ============================================================
+   Stat Card (统计卡片)
+   ============================================================ */
+.stat-card {
+  background: var(--surface); border-radius: var(--r-lg);
+  padding: var(--sp-md); border: 1px solid var(--divider);
+  display: flex; flex-direction: column; gap: 4px;
+  box-shadow: var(--elevation-1);
+}
+.stat-card .stat-label {
+  font-size: var(--fs-label); font-weight: 500; color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.stat-card .stat-value {
+  font-family: var(--font-mono); font-size: var(--fs-headline);
+  font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums;
+}
+.stat-card .stat-status {
+  font-size: var(--fs-body-sm); font-weight: 500;
+}
+.stat-card .stat-status.ok { color: var(--success); }
+.stat-card .stat-status.warn { color: var(--warning); }
+
+/* ============================================================
+   Chart Card
+   ============================================================ */
+.chart-card {
+  background: var(--surface); border-radius: var(--r-lg);
+  padding: var(--sp-md); border: 1px solid var(--divider);
+  box-shadow: var(--elevation-1);
+}
+.chart-card .chart-title {
+  font-size: var(--fs-title); font-weight: 600; margin-bottom: var(--sp-md);
+}
+
+/* ============================================================
+   AI Suggestion Card
+   ============================================================ */
+.ai-card {
+  background: var(--surface); border-radius: var(--r-lg);
+  padding: var(--sp-md); border: 1px solid var(--divider);
+  box-shadow: var(--elevation-1);
+  display: flex; flex-direction: column; gap: var(--sp-sm);
+}
+.ai-card .ai-header {
+  display: flex; align-items: center; gap: var(--sp-sm);
+  font-size: var(--fs-body-sm); font-weight: 600; color: var(--accent);
+}
+.ai-card .ai-body {
+  font-size: var(--fs-body-md); color: var(--fg); line-height: var(--lh-body-lg);
+}
+.ai-card .ai-action {
+  align-self: flex-end;
+  font-size: var(--fs-body-md); font-weight: 500; color: var(--accent);
+  cursor: pointer; padding: 4px 12px; border-radius: var(--r-sm);
+}
+.ai-card .ai-action:hover { background: rgba(76,175,80,0.08); }
+
+/* ============================================================
+   Dialog Overlay
+   ============================================================ */
+.dialog-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: var(--sp-lg);
+}
+.dialog {
+  background: var(--surface); border-radius: var(--r-xl);
+  padding: var(--sp-lg); max-width: 340px; width: 100%;
+  box-shadow: var(--elevation-6);
+  display: flex; flex-direction: column; gap: var(--sp-md);
+}
+.dialog .dialog-title {
+  font-size: var(--fs-headline); font-weight: 600; color: var(--fg);
+}
+.dialog .dialog-body {
+  font-size: var(--fs-body-md); color: var(--muted); line-height: var(--lh-body-lg);
+}
+.dialog .dialog-actions {
+  display: flex; gap: var(--sp-sm); justify-content: flex-end;
+}
+
+/* ============================================================
+   Snackbar
+   ============================================================ */
+.snackbar {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--fg); color: var(--bg);
+  padding: 12px 24px; border-radius: var(--r-sm);
+  font-size: var(--fs-body-md); font-weight: 500;
+  box-shadow: var(--elevation-6); z-index: 1100;
+  display: flex; align-items: center; gap: var(--sp-md);
+  max-width: 360px; animation: snack-in 0.3s ease-out;
+}
+.snackbar.success { background: var(--accent-dark); color: #fff; }
+.snackbar.error { background: var(--error); color: #fff; }
+.snackbar .snack-action {
+  color: var(--accent-light); font-weight: 600; cursor: pointer;
+  text-transform: uppercase; font-size: var(--fs-body-sm); letter-spacing: 0.06em;
+}
+@keyframes snack-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ============================================================
+   Loading States
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-variant) 25%, var(--divider) 50%, var(--surface-variant) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+  border-radius: var(--r-sm);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.spinner { display: grid; place-items: center; padding: var(--sp-2xl); }
+.spinner .dot-pulse {
+  display: flex; gap: 8px;
+}
+.spinner .dot-pulse span {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+  animation: dot-bounce 1.4s ease-in-out infinite both;
+}
+.spinner .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+.spinner .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   Empty State
+   ============================================================ */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-2xl) var(--sp-lg); text-align: center;
+}
+.empty-state .empty-icon {
+  font-size: 48px; opacity: 0.4;
+}
+.empty-state .empty-title {
+  font-size: var(--fs-title); font-weight: 600; color: var(--muted);
+}
+.empty-state .empty-desc {
+  font-size: var(--fs-body-md); color: var(--border); max-width: 280px;
+}
+
+/* ============================================================
+   FAB (Floating Action Button)
+   ============================================================ */
+.fab {
+  position: fixed; bottom: calc(var(--bottom-nav-h) + 16px); right: 16px;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--accent); color: var(--on-accent);
+  display: grid; place-items: center; font-size: 24px;
+  box-shadow: var(--elevation-3); cursor: pointer;
+  border: none; z-index: 90;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.fab:active { transform: scale(0.92); }
+
+/* ============================================================
+   Toggle Switch
+   ============================================================ */
+.toggle { position: relative; width: 48px; height: 28px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .track {
+  position: absolute; inset: 0;
+  background: var(--surface-variant); border-radius: 14px;
+  border: 1.5px solid var(--border); transition: background 0.2s;
+  cursor: pointer;
+}
+.toggle .thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--fg); transition: transform 0.2s;
+  box-shadow: var(--elevation-1);
+}
+.toggle input:checked + .track { background: var(--accent); border-color: var(--accent); }
+.toggle input:checked + .track .thumb { transform: translateX(20px); background: #fff; }
+
+/* ============================================================
+   Settings List
+   ============================================================ */
+.settings-list {
+  display: flex; flex-direction: column;
+}
+.settings-item {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-md); min-height: 56px;
+  border-bottom: 1px solid var(--divider);
+  cursor: pointer; transition: background 0.15s;
+  text-decoration: none; color: var(--fg);
+}
+.settings-item:hover { background: var(--surface-variant); }
+.settings-item .si-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 20px;
+  background: var(--surface-variant); flex-shrink: 0;
+}
+.settings-item .si-label { flex: 1; font-size: var(--fs-body-lg); font-weight: 500; }
+.settings-item .si-arrow { color: var(--border); font-size: 18px; }
+
+/* ============================================================
+   Meal Group (餐次分组)
+   ============================================================ */
+.meal-group { margin-bottom: var(--sp-lg); }
+.meal-group .mg-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-sm) 0;
+}
+.meal-group .mg-title {
+  font-size: var(--fs-body-lg); font-weight: 600; color: var(--fg);
+}
+.meal-group .mg-subtotal {
+  font-size: var(--fs-body-sm); font-weight: 500; color: var(--muted);
+}
+.meal-group .mg-items { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+/* ============================================================
+   Date Picker Strip
+   ============================================================ */
+.date-strip {
+  display: flex; align-items: center; gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md); overflow-x: auto;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+}
+.date-strip .date-chip {
+  flex-shrink: 0; scroll-snap-align: center;
+  padding: 8px 16px; border-radius: var(--r-full);
+  font-size: var(--fs-body-md); font-weight: 500;
+  background: var(--surface-variant); color: var(--fg);
+  border: 1px solid var(--divider); cursor: pointer;
+  text-align: center; white-space: nowrap;
+}
+.date-strip .date-chip.active {
+  background: var(--accent); color: var(--on-accent); border-color: var(--accent);
+}
+
+/* ============================================================
+   Summary Footer
+   ============================================================ */
+.summary-footer {
+  background: var(--surface); border-top: 1px solid var(--divider);
+  padding: var(--sp-md); display: flex; align-items: center; justify-content: space-between;
+}
+.summary-footer .sf-total {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--fs-title); font-weight: 700;
+}
+.summary-footer .sf-remain {
+  font-size: var(--fs-body-sm); color: var(--muted);
+}
+
+/* ============================================================
+   Onboarding
+   ============================================================ */
+.onboard-step { display: none; flex-direction: column; }
+.onboard-step.active { display: flex; }
+.onboard-hero {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-2xl) 0;
+}
+.onboard-hero .onboard-icon { font-size: 64px; }
+.onboard-hero .onboard-title {
+  font-size: var(--fs-display); font-weight: 700; text-align: center;
+}
+.onboard-hero .onboard-desc {
+  font-size: var(--fs-body-lg); color: var(--muted); text-align: center;
+  max-width: 300px;
+}
+.onboard-form { display: flex; flex-direction: column; gap: var(--sp-lg); padding: 0 var(--sp-md); }
+.onboard-radio-group { display: flex; flex-direction: column; gap: var(--sp-sm); }
+.onboard-radio {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-md); border-radius: var(--r-lg);
+  background: var(--surface-variant); cursor: pointer;
+  border: 2px solid transparent; transition: border-color 0.15s;
+  font-size: var(--fs-body-lg);
+}
+.onboard-radio.selected { border-color: var(--accent); background: var(--accent-light); }
+
+/* ============================================================
+   Camera Screen
+   ============================================================ */
+.camera-controls {
+  position: absolute; bottom: 40px; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--sp-xl);
+}
+.camera-btn {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: transparent; border: 4px solid #fff;
+  cursor: pointer; position: relative;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+}
+.camera-btn::after {
+  content: ''; position: absolute; inset: 6px;
+  border-radius: 50%; background: #fff;
+}
+.camera-btn:active { transform: scale(0.92); }
+.camera-btn:active::after { background: var(--accent-light); }
+
+/* ============================================================
+   Voice Recorder
+   ============================================================ */
+.voice-btn {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: var(--accent); color: var(--on-accent);
+  display: grid; place-items: center; font-size: 36px;
+  position: relative; cursor: pointer; border: none;
+  box-shadow: 0 0 0 8px rgba(76,175,80,0.2);
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.voice-btn:active, .voice-btn.recording {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 16px rgba(76,175,80,0.3), 0 0 0 32px rgba(76,175,80,0.15);
+}
+.voice-wave {
+  position: absolute; inset: -8px; border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: voice-pulse 1.5s ease-out infinite;
+  opacity: 0;
+}
+.voice-btn.recording .voice-wave { opacity: 1; }
+@keyframes voice-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ============================================================
+   Provider Select Card
+   ============================================================ */
+.provider-card {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-md); border-radius: var(--r-lg);
+  background: var(--surface); border: 2px solid var(--divider);
+  cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.provider-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.provider-card .pv-icon {
+  width: 44px; height: 44px; border-radius: var(--r-md);
+  background: var(--surface-variant); display: grid; place-items: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.provider-card .pv-info { flex: 1; }
+.provider-card .pv-name { font-size: var(--fs-body-lg); font-weight: 600; }
+.provider-card .pv-desc { font-size: var(--fs-body-sm); color: var(--muted); }
+.provider-card .pv-radio {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--border); flex-shrink: 0;
+  display: grid; place-items: center;
+}
+.provider-card.selected .pv-radio {
+  border-color: var(--accent); background: var(--accent);
+}
+.provider-card.selected .pv-radio::after {
+  content: ''; width: 10px; height: 10px; border-radius: 50%; background: #fff;
+}
+
+/* ============================================================
+   Key Display (API Key mask)
+   ============================================================ */
+.key-display {
+  display: flex; align-items: center; gap: var(--sp-sm);
+  padding: var(--sp-md); background: var(--surface-variant);
+  border-radius: var(--r-lg); font-family: var(--font-mono);
+  font-size: var(--fs-body-lg); letter-spacing: 0.04em;
+}
+.key-display .key-text { flex: 1; }
+.key-display .key-toggle, .key-display .key-delete {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  border: none; background: transparent; font-size: 18px;
+  color: var(--muted);
+}
+.key-display .key-toggle:hover, .key-display .key-delete:hover {
+  background: rgba(128,128,128,0.12);
+}
+
+/* ============================================================
+   Connection Test
+   ============================================================ */
+.conn-test {
+  display: flex; align-items: center; gap: var(--sp-md);
+  padding: var(--sp-md); border-radius: var(--r-lg);
+  background: var(--surface-variant); cursor: pointer;
+  border: 1px solid var(--divider);
+}
+.conn-test .ct-status {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--border);
+}
+.conn-test .ct-status.ok { background: var(--success); }
+.conn-test .ct-status.fail { background: var(--error); }
+.conn-test .ct-label { font-size: var(--fs-body-md); font-weight: 500; }
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-fade-in { animation: fade-in 0.3s ease-out; }
+.anim-slide-up { animation: slide-up 0.4s ease-out; }

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 我的</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .profile-card { margin-bottom: var(--sp-lg); }
+    .profile-card .pc-header {
+      display: flex; align-items: center; gap: var(--sp-md);
+    }
+    .profile-avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--accent-light); color: var(--accent);
+      display: grid; place-items: center; font-size: 28px; flex-shrink: 0;
+    }
+    .profile-info { flex: 1; }
+    .profile-name { font-size: var(--fs-title); font-weight: 600; }
+    .profile-stats { font-size: var(--fs-body-sm); color: var(--muted); margin-top: 4px; }
+    .profile-goal {
+      margin-top: var(--sp-md); padding: var(--sp-sm) var(--sp-md);
+      background: var(--accent-light); border-radius: var(--r-full);
+      display: inline-flex; align-items: center; gap: var(--sp-sm);
+      font-size: var(--fs-body-sm); font-weight: 500; color: var(--accent-dark);
+    }
+    .section-divider {
+      padding: var(--sp-md) 0 var(--sp-sm);
+      font-size: var(--fs-body-sm); font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .usage-card {
+      background: var(--surface); border-radius: var(--r-lg);
+      padding: var(--sp-md); border: 1px solid var(--divider);
+      box-shadow: var(--elevation-1);
+    }
+    .usage-card .us-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: var(--sp-sm) 0;
+    }
+    .usage-card .us-label { font-size: var(--fs-body-md); color: var(--muted); }
+    .usage-card .us-value { font-size: var(--fs-body-lg); font-weight: 600; font-family: var(--font-mono); }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>📶 🔋 85%</span>
+  </div>
+
+  <div class="top-bar">
+    <div class="title">我的</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- 个人资料卡片 -->
+    <div class="card profile-card">
+      <div class="pc-header">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-info">
+          <div class="profile-name">Shawn</div>
+          <div class="profile-stats">身高 175cm · 体重 72kg</div>
+        </div>
+      </div>
+      <div class="profile-goal">🎯 目标：减脂 · 每日 1,800 kcal</div>
+    </div>
+
+    <!-- 设置 -->
+    <div class="section-divider">设置</div>
+    <div class="settings-list">
+      <a class="settings-item" href="onboarding.html">
+        <div class="si-icon">🎯</div>
+        <span class="si-label">目标设定</span>
+        <span class="si-arrow">›</span>
+      </a>
+      <a class="settings-item" href="ai-config.html">
+        <div class="si-icon">🔑</div>
+        <span class="si-label">AI 模型配置</span>
+        <span class="si-arrow">›</span>
+      </a>
+      <div class="settings-item">
+        <div class="si-icon">📦</div>
+        <span class="si-label">个人食物库</span>
+        <span class="si-arrow">›</span>
+      </div>
+      <div class="settings-item" onclick="toggleTheme()">
+        <div class="si-icon">🌙</div>
+        <span class="si-label">深色模式</span>
+        <label class="toggle" style="margin-left:auto;" onclick="event.stopPropagation()">
+          <input type="checkbox" id="themeToggle" />
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+      <div class="settings-item">
+        <div class="si-icon">📤</div>
+        <span class="si-label">导出数据</span>
+        <span class="si-arrow">›</span>
+      </div>
+      <div class="settings-item">
+        <div class="si-icon">📥</div>
+        <span class="si-label">导入数据</span>
+        <span class="si-arrow">›</span>
+      </div>
+      <div class="settings-item">
+        <div class="si-icon">📄</div>
+        <span class="si-label">隐私政策</span>
+        <span class="si-arrow">›</span>
+      </div>
+      <div class="settings-item">
+        <div class="si-icon">ℹ️</div>
+        <span class="si-label">关于食记</span>
+        <span class="si-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- 统计 -->
+    <div class="section-divider">统计</div>
+    <div class="usage-card">
+      <div class="us-row">
+        <span class="us-label">📊 AI 用量统计</span>
+      </div>
+      <div class="us-row">
+        <span class="us-label">本月调用</span>
+        <span class="us-value">156 次</span>
+      </div>
+      <div class="us-row">
+        <span class="us-label">估算费用</span>
+        <span class="us-value">≈ ¥0.36</span>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="home.html">
+      <span class="nav-icon">🏠</span>首页
+    </a>
+    <a class="nav-item" href="data.html">
+      <span class="nav-icon">📊</span>数据
+    </a>
+    <button class="nav-item active">
+      <span class="nav-icon">👤</span>我的
+    </button>
+  </nav>
+
+</div>
+
+<script>
+  function toggleTheme() {
+    const body = document.body;
+    const theme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', theme);
+    document.getElementById('themeToggle').checked = (theme === 'dark');
+  }
+  document.getElementById('themeToggle').addEventListener('change', function() {
+    document.body.setAttribute('data-theme', this.checked ? 'dark' : 'light');
+  });
+</script>
+</body>
+</html>

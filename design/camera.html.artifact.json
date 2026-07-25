@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "camera.html",
+  "entry": "camera.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-13T15:57:54.207Z",
+  "updatedAt": "2026-07-13T15:57:54.207Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

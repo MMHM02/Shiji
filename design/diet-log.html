@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 饮食日志</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .log-food-item {
+      display: flex; align-items: center; gap: var(--sp-md);
+      padding: var(--sp-md); border-bottom: 1px solid var(--divider);
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .log-food-item:last-child { border-bottom: none; }
+    .log-food-item .food-emoji {
+      width: 40px; height: 40px; border-radius: var(--r-sm);
+      background: var(--surface-variant); display: grid; place-items: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .log-food-item .food-info { flex: 1; min-width: 0; }
+    .log-food-item .food-info .f-name { font-size: var(--fs-body-lg); font-weight: 500; }
+    .log-food-item .food-info .f-portion { font-size: var(--fs-body-sm); color: var(--muted); }
+    .log-food-item .food-kcal {
+      font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+      font-size: var(--fs-body-lg); font-weight: 600; color: var(--calories); flex-shrink: 0;
+    }
+    /* Swipe */
+    .log-food-item .swipe-del {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 72px; background: var(--error); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--fs-body-sm); font-weight: 600;
+      transform: translateX(100%); transition: transform 0.2s;
+    }
+    .log-food-item.swiped .swipe-del { transform: translateX(0); }
+    .log-food-item.swiped { transform: translateX(-72px); }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell" style="min-height:100vh;">
+
+  <div class="top-bar">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="title">饮食日志</div>
+    <button class="action">📅</button>
+  </div>
+
+  <!-- Date strip -->
+  <div class="date-strip" id="dateStrip">
+    <div class="date-chip">←</div>
+    <div class="date-chip">6/24 周三</div>
+    <div class="date-chip active">6/25 周四</div>
+    <div class="date-chip">6/26 周五</div>
+    <div class="date-chip">→</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- 早餐 -->
+    <div class="meal-group">
+      <div class="mg-header">
+        <span class="mg-title">🥣 早餐</span>
+        <span class="mg-subtotal">小计: 450 kcal</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="log-food-item" data-food="牛奶 200ml" data-kcal="120">
+          <div class="food-emoji">🥛</div>
+          <div class="food-info">
+            <div class="f-name">牛奶</div>
+            <div class="f-portion">200ml</div>
+          </div>
+          <div class="food-kcal">120 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+        <div class="log-food-item" data-food="全麦面包 2片" data-kcal="180">
+          <div class="food-emoji">🍞</div>
+          <div class="food-info">
+            <div class="f-name">全麦面包</div>
+            <div class="f-portion">2片</div>
+          </div>
+          <div class="food-kcal">180 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+        <div class="log-food-item" data-food="鸡蛋 1个" data-kcal="80">
+          <div class="food-emoji">🥚</div>
+          <div class="food-info">
+            <div class="f-name">鸡蛋</div>
+            <div class="f-portion">1个</div>
+          </div>
+          <div class="food-kcal">80 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+        <div class="log-food-item" data-food="香蕉 1根" data-kcal="70">
+          <div class="food-emoji">🍌</div>
+          <div class="food-info">
+            <div class="f-name">香蕉</div>
+            <div class="f-portion">1根</div>
+          </div>
+          <div class="food-kcal">70 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 午餐 -->
+    <div class="meal-group">
+      <div class="mg-header">
+        <span class="mg-title">🍱 午餐</span>
+        <span class="mg-subtotal">小计: 620 kcal</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="log-food-item" data-food="宫保鸡丁盖饭 1份" data-kcal="620">
+          <div class="food-emoji">🍛</div>
+          <div class="food-info">
+            <div class="f-name">宫保鸡丁盖饭</div>
+            <div class="f-portion">1份</div>
+          </div>
+          <div class="food-kcal">620 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 加餐 -->
+    <div class="meal-group">
+      <div class="mg-header">
+        <span class="mg-title">🍎 加餐</span>
+        <span class="mg-subtotal">小计: 180 kcal</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="log-food-item" data-food="苹果 1个" data-kcal="80">
+          <div class="food-emoji">🍎</div>
+          <div class="food-info">
+            <div class="f-name">苹果</div>
+            <div class="f-portion">1个</div>
+          </div>
+          <div class="food-kcal">80 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+        <div class="log-food-item" data-food="酸奶 1杯" data-kcal="100">
+          <div class="food-emoji">🥤</div>
+          <div class="food-info">
+            <div class="f-name">酸奶</div>
+            <div class="f-portion">1杯</div>
+          </div>
+          <div class="food-kcal">100 kcal</div>
+          <div class="swipe-del" onclick="event.stopPropagation();deleteItem(this)">删除</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary Footer -->
+  <div class="summary-footer">
+    <div>
+      <div class="sf-total">1,250 kcal</div>
+      <div class="sf-remain">目标 2,000 kcal · 剩余 750 kcal</div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="showSnackbar('手动添加食物','success')" style="position:fixed;">+</button>
+
+</div>
+
+<script>
+  // Date strip
+  document.querySelectorAll('#dateStrip .date-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      if (this.textContent === '←' || this.textContent === '→') return;
+      document.querySelectorAll('#dateStrip .date-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // Swipe to delete
+  document.querySelectorAll('.log-food-item').forEach(el => {
+    let startX = 0;
+    el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    el.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - startX;
+      if (dx < -30) el.classList.add('swiped');
+      else if (dx > 30) el.classList.remove('swiped');
+    });
+    el.addEventListener('touchend', () => {});
+    // Click to reset swipe
+    el.addEventListener('click', function() {
+      if (this.classList.contains('swiped')) {
+        this.classList.remove('swiped');
+      }
+    });
+  });
+
+  function deleteItem(swipeEl) {
+    const item = swipeEl.parentElement;
+    item.style.transition = 'transform 0.2s, opacity 0.2s, max-height 0.3s';
+    item.style.transform = 'translateX(-100%)';
+    item.style.opacity = '0';
+    item.style.maxHeight = '0';
+    item.style.padding = '0';
+    item.style.border = 'none';
+    setTimeout(() => item.remove(), 300);
+    showSnackbar('已删除', 'error');
+  }
+
+  function showSnackbar(msg, type) {
+    const s = document.createElement('div');
+    s.className = 'snackbar ' + type;
+    s.textContent = msg;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 2500);
+  }
+</script>
+</body>
+</html>

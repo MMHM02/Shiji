@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 数据看板</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-sm); margin-bottom: var(--sp-lg); }
+    .chart-area { background: var(--surface); border-radius: var(--r-lg); padding: var(--sp-md); margin-bottom: var(--sp-lg); border: 1px solid var(--divider); }
+    .chart-area .ca-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-md); }
+    .chart-area .ca-title { font-size: var(--fs-title); font-weight: 600; }
+    .chart-tabs { display: flex; gap: 4px; }
+    .chart-tab {
+      padding: 6px 14px; border-radius: var(--r-full); font-size: var(--fs-body-sm);
+      font-weight: 500; cursor: pointer; border: none;
+      background: var(--surface-variant); color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .chart-tab.active { background: var(--accent); color: var(--on-accent); }
+    .line-chart { width: 100%; height: 200px; position: relative; }
+    .line-chart svg { width: 100%; height: 100%; }
+    .ai-feed { display: flex; flex-direction: column; gap: var(--sp-sm); margin-bottom: var(--sp-lg); }
+    .ask-bar {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-md); background: var(--surface); border-radius: var(--r-lg);
+      border: 1px solid var(--divider); cursor: pointer; color: var(--muted);
+      margin-bottom: var(--sp-md);
+    }
+    .quick-links { display: flex; flex-direction: column; gap: var(--sp-xs); margin-bottom: var(--sp-lg); }
+    .ql-item {
+      display: flex; align-items: center; gap: var(--sp-sm);
+      padding: var(--sp-md); cursor: pointer; color: var(--accent);
+      font-size: var(--fs-body-lg); font-weight: 500;
+      text-decoration: none;
+    }
+    .ql-item:hover { background: var(--surface-variant); border-radius: var(--r-lg); }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>📶 🔋 85%</span>
+  </div>
+
+  <div class="top-bar">
+    <div class="title">数据看板</div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- 本周概览 -->
+    <div class="section-header">
+      <span class="sh-title">📊 本周概览</span>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-label">日均热量</div>
+        <div class="stat-value">1,680</div>
+        <div class="stat-status ok">✅ 达标</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">日均蛋白</div>
+        <div class="stat-value">72<span style="font-size:14px;">g</span></div>
+        <div class="stat-status warn">⚠️ 差 8g</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">日均碳水</div>
+        <div class="stat-value">210<span style="font-size:14px;">g</span></div>
+        <div class="stat-status ok">✅ 达标</div>
+      </div>
+    </div>
+
+    <!-- 热量趋势图 -->
+    <div class="chart-area">
+      <div class="ca-header">
+        <span class="ca-title">📈 热量趋势</span>
+        <div class="chart-tabs" id="calTabs">
+          <button class="chart-tab active" data-range="7">7天</button>
+          <button class="chart-tab" data-range="30">30天</button>
+          <button class="chart-tab" data-range="90">90天</button>
+        </div>
+      </div>
+      <div class="line-chart" id="calChart">
+        <svg viewBox="0 0 360 180">
+          <defs>
+            <linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.2" />
+              <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="40" y1="20" x2="360" y2="20" stroke="var(--divider)" stroke-width="0.5" />
+          <line x1="40" y1="60" x2="360" y2="60" stroke="var(--divider)" stroke-width="0.5" />
+          <line x1="40" y1="100" x2="360" y2="100" stroke="var(--divider)" stroke-width="0.5" />
+          <line x1="40" y1="140" x2="360" y2="140" stroke="var(--divider)" stroke-width="0.5" />
+          <!-- Y labels -->
+          <text x="34" y="24" text-anchor="end" font-size="10" fill="var(--muted)">2500</text>
+          <text x="34" y="64" text-anchor="end" font-size="10" fill="var(--muted)">2000</text>
+          <text x="34" y="104" text-anchor="end" font-size="10" fill="var(--muted)">1500</text>
+          <text x="34" y="144" text-anchor="end" font-size="10" fill="var(--muted)">1000</text>
+          <!-- Target line -->
+          <line x1="40" y1="70" x2="360" y2="70" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,4" />
+          <text x="364" y="73" font-size="9" fill="var(--muted)">目标</text>
+          <!-- Area -->
+          <path d="M40,108 L90,95 L140,82 L190,72 L240,78 L290,60 L340,62 L340,160 L40,160 Z" fill="url(#calGrad)" />
+          <!-- Line -->
+          <polyline points="40,108 90,95 140,82 190,72 240,78 290,60 340,62"
+            fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <!-- Dots -->
+          <circle cx="40" cy="108" r="4" fill="var(--accent)" />
+          <circle cx="90" cy="95" r="4" fill="var(--accent)" />
+          <circle cx="140" cy="82" r="4" fill="var(--accent)" />
+          <circle cx="190" cy="72" r="4" fill="var(--accent)" />
+          <circle cx="240" cy="78" r="4" fill="var(--accent)" />
+          <circle cx="290" cy="60" r="4" fill="var(--accent)" />
+          <circle cx="340" cy="62" r="4" fill="var(--accent)" />
+          <!-- X labels -->
+          <text x="40" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周一</text>
+          <text x="90" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周二</text>
+          <text x="140" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周三</text>
+          <text x="190" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周四</text>
+          <text x="240" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周五</text>
+          <text x="290" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周六</text>
+          <text x="340" y="170" text-anchor="middle" font-size="9" fill="var(--muted)">周日</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 体重趋势 -->
+    <div class="chart-area">
+      <div class="ca-header">
+        <span class="ca-title">⚖️ 体重趋势</span>
+        <div class="chart-tabs">
+          <button class="chart-tab active">7天</button>
+          <button class="chart-tab">30天</button>
+        </div>
+      </div>
+      <div class="line-chart">
+        <svg viewBox="0 0 360 160">
+          <line x1="40" y1="30" x2="360" y2="30" stroke="var(--divider)" stroke-width="0.5" />
+          <line x1="40" y1="70" x2="360" y2="70" stroke="var(--divider)" stroke-width="0.5" />
+          <line x1="40" y1="110" x2="360" y2="110" stroke="var(--divider)" stroke-width="0.5" />
+          <text x="34" y="34" text-anchor="end" font-size="10" fill="var(--muted)">73</text>
+          <text x="34" y="74" text-anchor="end" font-size="10" fill="var(--muted)">72</text>
+          <text x="34" y="114" text-anchor="end" font-size="10" fill="var(--muted)">71</text>
+          <polyline points="40,70 90,74 140,78 190,64 240,58 290,62 340,48"
+            fill="none" stroke="var(--fat)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="40" cy="70" r="4" fill="var(--fat)" />
+          <circle cx="90" cy="74" r="4" fill="var(--fat)" />
+          <circle cx="140" cy="78" r="4" fill="var(--fat)" />
+          <circle cx="190" cy="64" r="4" fill="var(--fat)" />
+          <circle cx="240" cy="58" r="4" fill="var(--fat)" />
+          <circle cx="290" cy="62" r="4" fill="var(--fat)" />
+          <circle cx="340" cy="48" r="4" fill="var(--fat)" />
+          <text x="40" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周一</text>
+          <text x="90" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周二</text>
+          <text x="140" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周三</text>
+          <text x="190" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周四</text>
+          <text x="240" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周五</text>
+          <text x="290" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周六</text>
+          <text x="340" y="150" text-anchor="middle" font-size="9" fill="var(--muted)">周日</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- AI 建议 -->
+    <div class="section-header">
+      <span class="sh-title">🤖 AI 建议</span>
+    </div>
+    <div class="ai-feed">
+      <div class="ai-card anim-slide-up">
+        <div class="ai-header">💡 蛋白质摄入提醒</div>
+        <div class="ai-body">本周蛋白质摄入有 4 天未达标，建议午餐增加瘦肉、鸡蛋或豆制品。</div>
+        <span class="ai-action" onclick="alert('AI 对话：有什么具体建议吗？')">追问 →</span>
+      </div>
+      <div class="ai-card anim-slide-up">
+        <div class="ai-header">🔥 晚餐热量偏高</div>
+        <div class="ai-body">昨日晚餐热量过高，今日建议控制在 600 kcal 以内，推荐轻食沙拉或蒸菜。</div>
+        <span class="ai-action" onclick="alert('AI 对话：推荐几个低热量晚餐？')">追问 →</span>
+      </div>
+      <div class="ai-card anim-slide-up">
+        <div class="ai-header">🍳 食谱推荐</div>
+        <div class="ai-body">今天想吃高蛋白早餐？为你推荐 3 款快手食谱：鸡蛋牛油果吐司、希腊酸奶碗、豆浆燕麦粥。</div>
+        <span class="ai-action" onclick="alert('查看完整食谱')">查看 →</span>
+      </div>
+    </div>
+
+    <!-- 自由提问 -->
+    <div class="ask-bar" onclick="alert('AI 助手：你好！有什么饮食问题想问我？')">
+      💬 有任何饮食问题？随时问我...
+      <span style="margin-left:auto;">→</span>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="quick-links">
+      <a class="ql-item" href="diet-log.html">📋 饮食日志 →</a>
+      <a class="ql-item" href="#">⚖️ 体重详情 →</a>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a class="nav-item" href="home.html">
+      <span class="nav-icon">🏠</span>首页
+    </a>
+    <button class="nav-item active">
+      <span class="nav-icon">📊</span>数据
+    </button>
+    <a class="nav-item" href="profile.html">
+      <span class="nav-icon">👤</span>我的
+    </a>
+  </nav>
+
+</div>
+
+<script>
+  // Chart tabs
+  document.querySelectorAll('.chart-tabs').forEach(group => {
+    group.querySelectorAll('.chart-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        group.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+  });
+</script>
+</body>
+</html>

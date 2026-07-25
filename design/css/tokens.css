@@ -1,0 +1,141 @@
+/* ============================================================
+   食记 (ShiJi) — Design Tokens
+   Material 3 · Android Mobile App
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap');
+
+/* ---- Light Theme (default) ---- */
+:root {
+  /* Neutral */
+  --bg:              #FAFAFA;
+  --surface:         #FFFFFF;
+  --surface-variant: #F5F5F5;
+  --fg:              #1C1B1F;
+  --muted:           #49454F;
+  --border:          #79747E;
+  --divider:         #E0E0E0;
+
+  /* Brand — 健康绿 */
+  --accent:          #4CAF50;
+  --accent-dark:     #388E3C;
+  --accent-light:    #C8E6C9;
+  --on-accent:       #FFFFFF;
+
+  /* Semantic */
+  --calories:        #FF6D00;
+  --protein:         #E91E63;
+  --carbs:           #FFC107;
+  --fat:             #2196F3;
+  --success:         #4CAF50;
+  --warning:         #FF9800;
+  --error:           #F44336;
+
+  /* Elevation — surface tint overlays */
+  --elevation-1: 0 1px 2px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+  --elevation-2: 0 2px 4px rgba(0,0,0,0.10), 0 1px 6px rgba(0,0,0,0.06);
+  --elevation-3: 0 4px 8px rgba(0,0,0,0.12), 0 2px 12px rgba(0,0,0,0.08);
+  --elevation-6: 0 8px 16px rgba(0,0,0,0.14), 0 4px 20px rgba(0,0,0,0.10);
+  --elevation-8: 0 12px 24px rgba(0,0,0,0.16), 0 6px 28px rgba(0,0,0,0.12);
+
+  /* Spacing (4dp grid) */
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md:  16px;
+  --sp-lg:  24px;
+  --sp-xl:  32px;
+  --sp-2xl: 48px;
+
+  /* Radius */
+  --r-sm:   8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  24px;
+  --r-full: 9999px;
+
+  /* Typography */
+  --font-display:  'Noto Sans SC', 'Roboto', -apple-system, system-ui, sans-serif;
+  --font-body:     'Noto Sans SC', 'Roboto', -apple-system, system-ui, sans-serif;
+  --font-mono:     'Roboto Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* Type scale */
+  --fs-display: 32px;
+  --fs-headline: 24px;
+  --fs-title: 20px;
+  --fs-body-lg: 16px;
+  --fs-body-md: 14px;
+  --fs-body-sm: 12px;
+  --fs-label: 11px;
+
+  --lh-display: 40px;
+  --lh-headline: 32px;
+  --lh-title: 28px;
+  --lh-body-lg: 24px;
+  --lh-body-md: 20px;
+  --lh-body-sm: 16px;
+  --lh-label: 16px;
+
+  /* App chrome */
+  --status-bar-h: 28px;
+  --nav-bar-h: 64px;
+  --bottom-nav-h: 64px;
+  --screen-w: 412px;
+  --screen-h: 915px;
+}
+
+/* ---- Dark Theme ---- */
+[data-theme="dark"] {
+  --bg:              #121212;
+  --surface:         #1C1B1F;
+  --surface-variant: #2B2930;
+  --fg:              #E6E1E5;
+  --muted:           #CAC4D0;
+  --border:          #938F99;
+  --divider:         #3A383F;
+
+  --accent:          #81C784;
+  --accent-dark:     #66BB6A;
+  --accent-light:    #2E4A2E;
+  --on-accent:       #1C1B1F;
+
+  --elevation-1: 0 1px 3px rgba(0,0,0,0.30);
+  --elevation-2: 0 2px 6px rgba(0,0,0,0.35);
+  --elevation-3: 0 4px 10px rgba(0,0,0,0.40);
+  --elevation-6: 0 8px 20px rgba(0,0,0,0.45);
+  --elevation-8: 0 12px 28px rgba(0,0,0,0.50);
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--fs-body-md);
+  line-height: var(--lh-body-md);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ---- Utility ---- */
+.fw-bold { font-weight: 700; }
+.fw-semi { font-weight: 600; }
+.fw-med  { font-weight: 500; }
+.fw-reg  { font-weight: 400; }
+.text-muted { color: var(--muted); }
+.text-accent { color: var(--accent); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.mono-num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Type craft: display text (≥32px) needs negative tracking */
+.display-text { letter-spacing: -0.015em; }
+/* ALL CAPS must have positive tracking per craft rules */
+.all-caps { letter-spacing: 0.08em; text-transform: uppercase; }
+
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

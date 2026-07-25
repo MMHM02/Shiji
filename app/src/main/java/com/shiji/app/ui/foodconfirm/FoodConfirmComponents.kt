@@ -1,0 +1,168 @@
+package com.shiji.app.ui.foodconfirm
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+
+/**
+ * Shared confirmation UI: editable food list + meal selector + action buttons.
+ * Used by camera / voice / text record flows so every AI entry point
+ * lands on the same polished confirmation experience.
+ */
+@Composable
+fun FoodConfirmContent(
+    items: List<EditableFoodItem>,
+    selectedMealType: String,
+    onSetMealType: (String) -> Unit,
+    onUpdateItem: (String, (EditableFoodItem) -> EditableFoodItem) -> Unit,
+    onRemoveItem: (String) -> Unit,
+    onCancel: () -> Unit,
+    onSave: () -> Unit,
+    modifier: Modifier = Modifier,
+    cancelLabel: String = "重录",
+    header: (@Composable () -> Unit)? = null
+) {
+    val totalCalories = items.sumOf { it.caloriesValue() }
+
+    Column(modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("确认食物信息", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text("AI 估算结果，可点击修改", style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                Text("${totalCalories.toInt()} kcal",
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+        }
+
+        header?.invoke()
+
+        LazyColumn(
+            modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(items, key = { it.id }) { item ->
+                EditableFoodCard(
+                    item = item,
+                    onChange = { onUpdateItem(item.id, it) },
+                    onRemove = { onRemoveItem(item.id) }
+                )
+            }
+
+            item {
+                Spacer(Modifier.height(4.dp))
+                Text("餐次", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(6.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    MEAL_TYPE_OPTIONS.forEach { (type, label) ->
+                        FilterChip(
+                            selected = selectedMealType == type,
+                            onClick = { onSetMealType(type) },
+                            label = { Text(label) }
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f).height(52.dp),
+                shape = RoundedCornerShape(26.dp)
+            ) { Text(cancelLabel) }
+            Button(
+                onClick = onSave,
+                enabled = items.isNotEmpty(),
+                modifier = Modifier.weight(1f).height(52.dp),
+                shape = RoundedCornerShape(26.dp)
+            ) { Text("保存 (${items.size}项)") }
+        }
+    }
+}
+
+@Composable
+fun EditableFoodCard(
+    item: EditableFoodItem,
+    onChange: ((EditableFoodItem) -> EditableFoodItem) -> Unit,
+    onRemove: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = item.name,
+                    onValueChange = { v -> onChange { it.copy(name = v) } },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                IconButton(onClick = onRemove) {
+                    Icon(Icons.Filled.DeleteOutline, "删除此项", tint = MaterialTheme.colorScheme.error)
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = item.portion,
+                    onValueChange = { v -> onChange { it.copy(portion = v) } },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("份量") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                OutlinedTextField(
+                    value = item.portionUnit,
+                    onValueChange = { v -> onChange { it.copy(portionUnit = v) } },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("单位") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                OutlinedTextField(
+                    value = item.calories,
+                    onValueChange = { v -> onChange { it.copy(calories = v) } },
+                    modifier = Modifier.weight(1.2f),
+                    label = { Text("热量 kcal") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = RoundedCornerShape(10.dp)
+                )
+            }
+            if (item.confidence < 0.7f) {
+                Spacer(Modifier.height(6.dp))
+                Text("⚠️ AI 对此项不太确定，请核对",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.tertiary)
+            }
+        }
+    }
+}

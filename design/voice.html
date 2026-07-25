@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>食记 — 语音记录</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    .voice-page {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; padding: var(--sp-xl) var(--sp-md);
+      gap: var(--sp-xl);
+    }
+    .voice-transcript {
+      width: 100%; min-height: 160px; padding: var(--sp-lg);
+      background: var(--surface); border-radius: var(--r-lg);
+      border: 1px solid var(--divider);
+      font-size: var(--fs-body-lg); line-height: var(--lh-body-lg);
+      color: var(--fg); position: relative;
+    }
+    .voice-transcript .blinking-cursor {
+      display: inline-block; width: 2px; height: 1.2em;
+      background: var(--accent); vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .voice-controls {
+      display: flex; flex-direction: column; align-items: center; gap: var(--sp-lg);
+      margin-top: auto; padding-bottom: var(--sp-2xl);
+    }
+    .voice-btn-wrap { position: relative; }
+    .voice-ripple {
+      position: absolute; inset: -12px; border-radius: 50%;
+      border: 3px solid var(--accent); opacity: 0;
+      animation: none;
+    }
+    .voice-ripple.active {
+      animation: ripple-out 1.5s ease-out infinite;
+    }
+    .voice-ripple:nth-child(2) { animation-delay: 0.5s; }
+    @keyframes ripple-out {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .voice-hint {
+      font-size: var(--fs-body-sm); color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .voice-timer {
+      font-family: var(--font-mono); font-size: var(--fs-body-lg);
+      font-weight: 600; color: var(--muted);
+    }
+  </style>
+</head>
+<body data-theme="light">
+<div class="app-shell" style="min-height:100vh;">
+
+  <div class="top-bar">
+    <button class="back-btn" onclick="history.back()">←</button>
+    <div class="title">语音记录</div>
+  </div>
+
+  <div class="voice-page">
+    <!-- Transcript area -->
+    <div class="voice-transcript" id="transcript">
+      <span id="transcriptText">按住下方按钮开始说话...</span>
+      <span class="blinking-cursor" id="cursor" style="display:none;"></span>
+    </div>
+
+    <!-- Voice button + ripples -->
+    <div class="voice-controls">
+      <div class="voice-timer" id="timer">00:00</div>
+      <div class="voice-btn-wrap">
+        <div class="voice-ripple" id="ripple1"></div>
+        <div class="voice-ripple" id="ripple2"></div>
+        <button class="voice-btn" id="voiceBtn" aria-label="按住说话">
+          🎤
+        </button>
+      </div>
+      <div class="voice-hint">
+        <span id="hintText">按住说话</span>
+        <span>最长 60 秒 · 松开发送 · 上滑取消</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const btn = document.getElementById('voiceBtn');
+  const transcript = document.getElementById('transcriptText');
+  const cursor = document.getElementById('cursor');
+  const timer = document.getElementById('timer');
+  const hint = document.getElementById('hintText');
+  const ripple1 = document.getElementById('ripple1');
+  const ripple2 = document.getElementById('ripple2');
+
+  let isRecording = false, startTime = 0, timerInterval = null;
+  const sampleText = '中午吃了一份宫保鸡丁盖饭，喝了杯奶茶，还吃了两个橘子，感觉热量有点高...';
+
+  btn.addEventListener('mousedown', startRecording);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); startRecording(); });
+  btn.addEventListener('mouseup', stopRecording);
+  btn.addEventListener('touchend', stopRecording);
+
+  function startRecording() {
+    if (isRecording) return;
+    isRecording = true;
+    startTime = Date.now();
+    btn.classList.add('recording');
+    ripple1.classList.add('active');
+    ripple2.classList.add('active');
+    hint.textContent = '录音中...';
+    cursor.style.display = 'inline-block';
+    if (transcript.textContent === '按住下方按钮开始说话...') {
+      transcript.textContent = '';
+    }
+
+    // Simulate ASR streaming
+    let i = 0;
+    const streamInterval = setInterval(() => {
+      if (!isRecording) { clearInterval(streamInterval); return; }
+      if (i < sampleText.length) {
+        transcript.textContent = sampleText.substring(0, i + 1);
+        i++;
+      } else {
+        clearInterval(streamInterval);
+      }
+    }, 120);
+
+    // Timer
+    timer.textContent = '00:00';
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      timer.textContent = m + ':' + s;
+      if (elapsed >= 60) stopRecording();
+    }, 200);
+
+    btn._streamInterval = streamInterval;
+  }
+
+  function stopRecording() {
+    if (!isRecording) return;
+    isRecording = false;
+    btn.classList.remove('recording');
+    ripple1.classList.remove('active');
+    ripple2.classList.remove('active');
+    hint.textContent = '松开发送 · 上滑取消';
+    cursor.style.display = 'none';
+    if (timerInterval) clearInterval(timerInterval);
+    if (btn._streamInterval) clearInterval(btn._streamInterval);
+
+    // Simulate AI parsing
+    if (transcript.textContent && transcript.textContent !== '按住下方按钮开始说话...') {
+      hint.textContent = 'AI 正在解析...';
+      setTimeout(() => {
+        hint.textContent = '✅ 识别完成 · 点击查看结果';
+        showSnackbar('✅ 已识别 3 种食物，点击确认保存', 'success');
+      }, 1500);
+    }
+  }
+
+  function showSnackbar(msg, type) {
+    const s = document.createElement('div');
+    s.className = 'snackbar ' + type;
+    s.textContent = msg;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 2500);
+  }
+</script>
+</body>
+</html>
