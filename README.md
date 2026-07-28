@@ -1,154 +1,129 @@
 # 🍽️ 食记 — AI 驱动的饮食记录与健康数据看板
 
 <p align="center">
+  <img src="https://img.shields.io/badge/version-v0.1.3-green" alt="Version">
   <img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License">
   <img src="https://img.shields.io/badge/platform-Android%208.0%2B-green" alt="Platform">
   <img src="https://img.shields.io/badge/language-Kotlin-purple" alt="Language">
-  <img src="https://img.shields.io/badge/architecture-MVVM%20%2B%20Clean-orange" alt="Architecture">
+  <img src="https://img.shields.io/badge/architecture-MVVM-orange" alt="Architecture">
 </p>
 
 ## 项目概述
 
-**食记** 是一款 **完全开源** 的 Android 端饮食记录应用。用户可以自行接入国内大语言模型（LLM）API Key，利用 AI 视觉模型进行食物拍照识别与卡路里分析、利用语音识别进行口述饮食记录，并基于 AI 提供个性化的健康建议。
+**食记** 是一款完全开源的 Android 饮食记录应用。接入你自己的大模型 API Key，拍照/文字记录每一餐，AI 为你估算营养并给出个性化建议。所有数据存本地，代码公开可审计。
 
-> 🔓 **开源承诺**：代码 100% 公开可审计。API Key 如何存储、网络请求发往何处、数据是否上传 —— 每一行代码都可以验证，无需信任，只需核实。
+> 🔓 你的 API Key，你的数据，你的 AI 选择。食记不做中间人，代码公开可查。
 
 | 属性 | 说明 |
 |------|------|
-| **项目名称** | 食记 |
 | **平台** | Android 8.0+ (API 26+) |
-| **开发语言** | Kotlin |
-| **UI 框架** | Jetpack Compose |
-| **最低 SDK** | 26 (Android 8.0 Oreo) |
-| **目标 SDK** | 35 (Android 15) |
-| **架构模式** | MVVM + Clean Architecture |
+| **开发语言** | Kotlin 2.1 |
+| **UI** | Jetpack Compose + Material 3 |
+| **架构** | MVVM + Hilt DI |
+| **数据库** | Room + DataStore |
+| **AI** | 多厂商适配（DeepSeek / Kimi / 通义千问 / 智谱 GLM / 自定义） |
 | **许可证** | Apache 2.0 |
-| **代码仓库** | GitHub（开源） |
+| **仓库** | https://github.com/MMHM02/Shiji |
 
 ---
 
-## 核心特色
+## 功能
+
+| 模块 | 功能 |
+|------|------|
+| 🔑 **AI 配置** | 自选厂商，API Key 加密存储（Android Keystore），连接测试，用量统计 |
+| 📷 **拍照识食** | CameraX 拍摄/相册选图 → AI 视觉分析 → 可编辑确认 → 存 Room |
+| ✍️ **文字记录** | 自然语言描述 → AI 解析食物营养 → 确认保存 |
+| ✋ **手动记录** | 手动输入/搜索食物库，AI 一键估算营养素 |
+| 🤖 **AI 顾问** | SSE 流式对话，注入真实饮食数据上下文，建议精准 |
+| 📊 **首页仪表盘** | 热量圆环 + 水分进度条 + 营养素卡片 + 三餐列表 + 日期切换补签 |
+| 📈 **数据看板** | 近7天热量趋势图 + 基于真实数据的 AI 建议卡片 |
+| ⚖️ **体重追踪** | 手动记录 + 趋势折线图，数据持久化 Room 重启不丢 |
+| 💧 **水分摄入** | 快速加水确认弹窗 + 每日目标可自定义 + 首页竖条进度 |
+| 🎯 **目标设定** | 预设/自定义 kcal·蛋白质·碳水·脂肪目标 + 体重同步 |
+| 📋 **饮食日志** | 日历快速跳转 + 有记录日期浅绿高亮 + 饮水进度条 |
+| 🗂️ **个人食物库** | 随记录自动沉淀常用食物，快速复用 |
+| 🌙 **深色模式** | 一键切换明/暗主题 |
+| 📤 **数据管理** | JSON 导出/导入，数据备份与恢复 |
+
+---
+
+## 快速开始
+
+```bash
+git clone https://github.com/MMHM02/Shiji.git
+```
+
+用 Android Studio 打开项目，Sync Gradle → Run。或直接下载 [最新 Release APK](https://github.com/MMHM02/Shiji/releases) 安装。
+
+**使用步骤**：
+
+1. 完成 3 步引导（目标 → AI 配置 → 就绪，均可跳过）
+2. **我的 → AI 模型配置** → 选厂商 → 输 API Key → 点测试连接
+3. 测试通过后即可使用全部 AI 功能
+
+---
+
+## 项目结构
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   🧠 AI 驱动核心                      │
-│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │
-│  │ 拍照识食  │  │ 语音记录  │  │ 个性化健康建议    │  │
-│  │ 视觉模型  │  │ ASR+TTS  │  │ 多模态分析        │  │
-│  └──────────┘  └──────────┘  └──────────────────┘  │
-│                        │                            │
-│        用户自有 API Key（支持多厂商）                 │
-│    OpenAI · Anthropic · Google AI · 国产模型         │
-└─────────────────────────────────────────────────────┘
+fitness/
+├── app/                             # 主应用（DI / 导航 / 所有界面）
+├── core/
+│   ├── ai/                          # AI 适配层（OpenAI 兼容接口 + SSE 流式）
+│   ├── camera/                      # CameraX 封装 + 图片预处理
+│   ├── voice/                       # ASR 封装（已移除 UI，保留接口）
+│   ├── data/                        # Room 数据库 + DAO + DataStore
+│   └── common/                      # 安全存储（Keystore）+ 通用工具
+├── feature/                         # 功能模块（占位，主界面在 app）
+├── design/                          # UI 设计稿（HTML/CSS Mockup）
+├── docs/                            # 需求 / 架构 / AI 方案 / 路线图
+└── gradle/                          # Gradle Wrapper + Version Catalog
 ```
+
+---
+
+## 技术栈
+
+| 层 | 技术 |
+|----|------|
+| UI | Jetpack Compose + Material 3 |
+| 导航 | Compose Navigation |
+| DI | Hilt |
+| 数据库 | Room + DataStore |
+| 安全 | Android Keystore + EncryptedSharedPreferences |
+| 网络 | OkHttp + Kotlinx Serialization（直连 AI API，无中间服务） |
+| 相机 | CameraX |
+| 图片 | Coil 3 |
+| AI | 统一适配层 → OpenAI 兼容协议（支持 DeepSeek / Kimi / 通义 / GLM / 自定义） |
 
 ---
 
 ## 文档索引
 
-| 文档 | 路径 | 描述 |
-|------|------|------|
-| 📋 需求分析 | [`docs/01-requirements.md`](docs/01-requirements.md) | 市场分析、用户画像、功能需求、非功能需求 |
-| 🎨 产品设计 | [`docs/02-product-design.md`](docs/02-product-design.md) | 信息架构、交互流程、UI/UX 设计规范 |
-| 🏗️ 技术架构 | [`docs/03-architecture.md`](docs/03-architecture.md) | 系统架构、技术选型、模块划分、数据模型 |
-| 🤖 AI 集成方案 | [`docs/04-ai-integration.md`](docs/04-ai-integration.md) | 多模型接入、API Key 管理、Prompt 工程、视觉分析 |
-| ⚙️ 功能实现 | [`docs/05-feature-implementation.md`](docs/05-feature-implementation.md) | 核心功能详细实现方案、关键代码设计 |
-| 🗺️ 开发路线图 | [`docs/06-roadmap.md`](docs/06-roadmap.md) | 里程碑、迭代计划、技术债务管理 |
+| 文档 | 描述 |
+|------|------|
+| [📋 需求分析](docs/01-requirements.md) | 市场分析、用户画像、功能需求 |
+| [🎨 产品设计](docs/02-product-design.md) | 信息架构、交互流程、UI/UX |
+| [🏗️ 技术架构](docs/03-architecture.md) | 系统架构、技术选型、数据模型 |
+| [🤖 AI 集成方案](docs/04-ai-integration.md) | 多模型接入、Prompt 工程、视觉分析 |
+| [⚙️ 功能实现](docs/05-feature-implementation.md) | 核心功能实现方案 |
+| [🗺️ 路线图](docs/06-roadmap.md) | 里程碑 + 更新日志 |
 
 ---
 
-## 快速开始（开发阶段）
+## 为什么开源
 
-```bash
-# 克隆项目
-git clone <repo-url> fitness
-cd fitness
+传统闭源 App 让你「相信」它不会盗用 API Key。食记让你「验证」它不会：
 
-# 使用 Android Studio Hedgehog (2024.1.1+) 打开项目
-# Sync Gradle → Run on emulator/device
-```
-
----
-
-## 项目结构（规划）
+| 可验证 | 方法 |
+|--------|------|
+| Key 存储 | 搜索 `EncryptedKeyStore` → Keystore 加密，无明文落盘 |
+| 网络请求 | 检查 AI 适配层 → 只向用户选择的厂商发请求，无中转 |
+| 数据不上传 | 全文搜索 `POST`/`PUT` → 零第三方服务器 |
+| 权限使用 | 仅相机权限（拍照），无水印/后台上传 |
 
 ```
-fitness/
-├── app/                         # 主应用模块
-│   ├── src/main/java/com/fitness/
-│   │   ├── MainActivity.kt
-│   │   ├── FitnessApp.kt        # Application 类
-│   │   ├── di/                  # 依赖注入模块
-│   │   ├── data/                # 数据层
-│   │   │   ├── local/           # Room DAO, Entities
-│   │   │   ├── remote/          # API 服务, AI 适配器
-│   │   │   └── repository/      # 仓库实现
-│   │   ├── domain/              # 领域层
-│   │   │   ├── model/           # 领域模型
-│   │   │   ├── usecase/         # 用例
-│   │   │   └── repository/      # 仓库接口
-│   │   └── ui/                  # 展示层
-│   │       ├── navigation/      # 导航图
-│   │       ├── theme/           # 主题/设计令牌
-│   │       ├── home/            # 首页仪表盘
-│   │       ├── diet/            # 饮食模块
-│   │       ├── health/          # 健康追踪
-│   │       ├── ai/              # AI 对话/分析
-│   │       ├── settings/        # 设置（含API Key管理）
-│   │       └── components/      # 通用组件
-│   └── src/main/res/            # 资源文件
-├── core/                        # 核心工具库
-│   ├── ai/                      # AI 适配层
-│   ├── camera/                  # 相机封装
-│   ├── voice/                   # 语音服务封装
-│   └── common/                  # 通用工具
-├── docs/                        # 技术文档（当前目录）
-├── build.gradle.kts
-└── settings.gradle.kts
+传统 App：「相信我」❌ 黑盒
+食记：「验证我」✅ 每行代码可见
 ```
-
----
-
-## 技术栈一览
-
-| 层 | 技术 | 说明 |
-|----|------|------|
-| **UI** | Jetpack Compose + Material 3 | 声明式 UI，现代化设计 |
-| **架构** | MVVM + Clean Architecture | 分层解耦，可测试 |
-| **导航** | Compose Navigation | 类型安全的导航 |
-| **数据库** | Room | SQLite 抽象层 |
-| **网络** | Retrofit + OkHttp + Kotlinx Serialization | HTTP 客户端 |
-| **DI** | Hilt | 编译时依赖注入 |
-| **相机** | CameraX | Jetpack 相机库 |
-| **语音** | Android SpeechRecognizer + MediaPlayer | 语音识别与合成 |
-| **图片加载** | Coil 3 | Compose 原生图片加载 |
-| **图表** | Vico | Compose 图表库 |
-| **AI** | 多厂商适配层（OpenAI / Anthropic / Google AI / 国产） | 统一接口 |
-| **测试** | JUnit5 + MockK + Compose Test + Turbo | 全覆盖测试 |
-| **CI/CD** | GitHub Actions | 自动化构建 |
-
----
-
----
-
-## 🔓 为什么开源？
-
-市面上绝大多数健康类应用都是闭源的。当你把 API Key 或饮食数据输入一个黑盒应用时，你无法确认它是否在后台偷偷上传。
-
-Fitness 选择开源，意味着：
-
-| 你可以验证的 | 具体做法 |
-|-------------|----------|
-| **API Key 去向** | 搜索 `EncryptedKeyStore`，确认 Key 只存在本地加密存储 |
-| **网络请求终点** | 检查 AI 适配层代码，确认只向用户选择的 AI 厂商发请求 |
-| **数据不上传** | 全局搜索 `POST`/`PUT` 调用，确认无数据回传第三方服务器 |
-| **权限使用** | 相机/录音权限仅在拍照/语音功能时调用，无后台滥用 |
-| **依赖安全** | 所有第三方库版本透明，SBOM 可生成 |
-
-```
-开源信任模型：
-  传统应用：  "相信我"  ❌ 黑盒
-  食记：     "验证我"  ✅ 每行代码可见
-```
-
-> 💡 **核心理念**：你的 API Key，你的数据，你的 AI 选择。Fitness 不做中间人，代码公开可查。
