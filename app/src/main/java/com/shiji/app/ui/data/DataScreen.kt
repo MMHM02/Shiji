@@ -32,6 +32,7 @@ fun DataScreen(
     todayRecords: List<FoodRecordEntity> = emptyList(),
     calorieTarget: Double = 2000.0,
     proteinTarget: Double = 60.0,
+    fatTarget: Double = 65.0,
     onNavigateToDietLog: () -> Unit = {},
     onNavigateToWeight: () -> Unit = {},
     onNavigateToAIChat: (String) -> Unit = {}
@@ -42,6 +43,7 @@ fun DataScreen(
     val dailyCalories = todayRecords.sumOf { it.calories }.toInt()
     val dailyProtein = todayRecords.sumOf { it.proteinGrams }.toInt()
     val dailyCarbs = todayRecords.sumOf { it.carbsGrams }.toInt()
+    val dailyFat = todayRecords.sumOf { it.fatGrams }.toInt()
 
     val weekByDay: List<Pair<LocalDate, Double>> = (6 downTo 0).map { offset ->
         val date = today.minusDays(offset.toLong())
@@ -86,13 +88,19 @@ fun DataScreen(
                     fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(vertical = 8.dp))
             }
             item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    StatCard("今日热量", "$dailyCalories", if (dailyCalories == 0) "开始记录" else "已摄入",
-                        if (dailyCalories == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
-                    StatCard("今日蛋白", "${dailyProtein}g", if (dailyProtein == 0) "开始记录" else "已摄入",
-                        if (dailyProtein == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
-                    StatCard("今日碳水", "${dailyCarbs}g", if (dailyCarbs == 0) "开始记录" else "已摄入",
-                        if (dailyCarbs == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StatCard("今日热量", "$dailyCalories", if (dailyCalories == 0) "开始记录" else "已摄入",
+                            if (dailyCalories == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
+                        StatCard("今日蛋白", "${dailyProtein}g", if (dailyProtein == 0) "开始记录" else "已摄入",
+                            if (dailyProtein == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
+                    }
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StatCard("今日碳水", "${dailyCarbs}g", if (dailyCarbs == 0) "开始记录" else "已摄入",
+                            if (dailyCarbs == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
+                        StatCard("今日脂肪", "${dailyFat}g", if (dailyFat == 0) "开始记录" else "已摄入",
+                            if (dailyFat == 0) StatStatus.WARN else StatStatus.OK, modifier = Modifier.weight(1f))
+                    }
                 }
             }
 

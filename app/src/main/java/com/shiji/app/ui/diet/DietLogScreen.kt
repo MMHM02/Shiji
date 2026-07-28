@@ -23,12 +23,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.shiji.core.common.util.PortionConverter
 import com.shiji.core.data.entity.FoodRecordEntity
+import com.shiji.app.ui.components.RecordCalendar
 import com.shiji.app.ui.theme.*
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +59,7 @@ fun DietLogScreen(
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             // Calendar dropdown
             if (showCalendar) {
-                DietCalendar(
+                RecordCalendar(
                     currentDate = date,
                     datesWithRecords = datesWithRecords,
                     onSelectDate = { onDateChange(it); showCalendar = false }
@@ -88,6 +86,8 @@ fun DietLogScreen(
                     Text("🥩 ${records.sumOf { it.proteinGrams }.toInt()}g 蛋白",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("💧 ${records.sumOf { it.carbsGrams }.toInt()}g 碳水",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("🫒 ${records.sumOf { it.fatGrams }.toInt()}g 脂肪",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -203,102 +203,6 @@ fun DietLogScreen(
 
                     item { Spacer(Modifier.height(16.dp)) }
                 }
-            }
-        }
-    }
-}
-
-// ==================== calendar ====================
-
-@Composable
-private fun DietCalendar(
-    currentDate: LocalDate,
-    datesWithRecords: Set<LocalDate>,
-    onSelectDate: (LocalDate) -> Unit
-) {
-    val today = LocalDate.now()
-    val yearMonth = YearMonth.from(currentDate)
-    val startOfMonth = yearMonth.atDay(1)
-    // Start from the Monday of the week containing day 1
-    val calendarStart = startOfMonth.with(DayOfWeek.MONDAY)
-    // 6 weeks for full coverage
-    val days = (0 until 42).map { calendarStart.plusDays(it.toLong()) }
-
-    val fmt = DateTimeFormatter.ofPattern("M/d")
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            // Month header
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text(
-                    currentDate.format(DateTimeFormatter.ofPattern("yyyy年M月")),
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            // Day-of-week headers
-            Row(Modifier.fillMaxWidth()) {
-                listOf("一", "二", "三", "四", "五", "六", "日").forEach { d ->
-                    Text(d, Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            Spacer(Modifier.height(4.dp))
-            // 6 rows
-            for (row in 0 until 6) {
-                Row(Modifier.fillMaxWidth()) {
-                    for (col in 0 until 7) {
-                        val d = days[row * 7 + col]
-                        val hasRecord = d in datesWithRecords
-                        val isToday = d == today
-                        val isSelected = d == currentDate
-                        val inMonth = d.month == yearMonth.month
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .padding(1.dp)
-                                .clip(CircleShape)
-                                .then(
-                                    when {
-                                        isSelected -> Modifier.background(MaterialTheme.colorScheme.primary)
-                                        hasRecord -> Modifier.background(BrandGreenLight)
-                                        else -> Modifier
-                                    }
-                                )
-                                .clickable(enabled = inMonth) { onSelectDate(d) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (inMonth) {
-                                Text(
-                                    d.dayOfMonth.toString(),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(top = 2.dp),
-                                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                                    color = when {
-                                        isSelected -> MaterialTheme.colorScheme.onPrimary
-                                        else -> MaterialTheme.colorScheme.onSurface
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            Spacer(Modifier.height(4.dp))
-            // Legend
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(10.dp).clip(CircleShape).background(BrandGreenLight))
-                Spacer(Modifier.width(6.dp))
-                Text("有记录", style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

@@ -139,6 +139,7 @@ fun ShiJiNavGraph() {
                         waterMl = waterMl,
                         waterGoalMl = waterGoal,
                         selectedDate = currentDate,
+                        datesWithRecords = datesWithRecords,
                         onDateChange = { mainViewModel.setDate(it) },
                         onAddWater = { mainViewModel.addWater(it) },
                         onSetWaterGoal = { mainViewModel.setWaterGoal(it) },
@@ -155,6 +156,7 @@ fun ShiJiNavGraph() {
                         todayRecords = currentDateRecords,
                         calorieTarget = userGoal?.dailyCalories ?: 2000.0,
                         proteinTarget = userGoal?.proteinTargetGrams ?: 60.0,
+                        fatTarget = userGoal?.fatTargetGrams ?: 65.0,
                         onNavigateToDietLog = { navController.navigate("diet_log") },
                         onNavigateToWeight = { navController.navigate("weight") },
                         onNavigateToAIChat = { prompt -> navController.navigate("ai_chat/${Uri.encode(prompt)}") }

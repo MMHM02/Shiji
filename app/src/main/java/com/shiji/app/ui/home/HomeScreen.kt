@@ -34,6 +34,7 @@ fun HomeScreen(
     waterMl: Int = 0,
     waterGoalMl: Int = 2000,
     selectedDate: LocalDate = LocalDate.now(),
+    datesWithRecords: Set<LocalDate> = emptySet(),
     onDateChange: (LocalDate) -> Unit = {},
     onAddWater: (Int) -> Unit = {},
     onSetWaterGoal: (Int) -> Unit = {},
@@ -52,25 +53,24 @@ fun HomeScreen(
     val totalFat = todayRecords.sumOf { it.fatGrams }.toFloat()
     var showDatePicker by remember { mutableStateOf(false) }
 
-    // DatePickerDialog
+    // Calendar popup
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate
-            .atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli())
-        DatePickerDialog(
+        AlertDialog(
             onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let {
-                        onDateChange(java.time.Instant.ofEpochMilli(it)
-                            .atZone(java.time.ZoneId.systemDefault()).toLocalDate())
-                    }
-                    showDatePicker = false
-                }) { Text("确定") }
+            title = { Text("选择日期", textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()) },
+            text = {
+                RecordCalendar(
+                    currentDate = selectedDate,
+                    datesWithRecords = datesWithRecords,
+                    onSelectDate = { onDateChange(it); showDatePicker = false }
+                )
             },
-            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("取消") } }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("关闭") }
+            }
+        )
     }
 
     Scaffold(
