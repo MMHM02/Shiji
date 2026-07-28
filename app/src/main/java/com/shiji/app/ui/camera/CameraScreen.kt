@@ -36,6 +36,7 @@ import com.shiji.app.ui.components.LoadingState
 import com.shiji.app.ui.foodconfirm.EditableFoodItem
 import com.shiji.app.ui.foodconfirm.FoodConfirmContent
 import java.io.File
+import java.time.LocalDate
 
 private enum class CameraStep { PREVIEW, PHOTO_CONFIRM, ANALYZING, RESULT }
 
@@ -44,10 +45,12 @@ private enum class CameraStep { PREVIEW, PHOTO_CONFIRM, ANALYZING, RESULT }
 fun CameraScreen(
     onBack: () -> Unit = {},
     onSaved: () -> Unit = {},
+    selectedDate: LocalDate = LocalDate.now(),
     onNavigateToAiSettings: () -> Unit = {},
     onNavigateToTextRecord: () -> Unit = {},
     viewModel: CameraViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(selectedDate) { viewModel.selectedDate = selectedDate }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var step by remember { mutableStateOf(CameraStep.PREVIEW) }

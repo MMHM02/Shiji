@@ -50,6 +50,10 @@ class FoodLogEntryViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(EntryUiState())
     val uiState: StateFlow<EntryUiState> = _uiState.asStateFlow()
 
+    /** Set by the screen from NavGraph's current date — used for retroactive logging. */
+    var selectedDate: LocalDate = LocalDate.now()
+    var selectedTime: LocalTime = LocalTime.MIDNIGHT
+
     private var parseJob: Job? = null
 
     init {
@@ -147,8 +151,9 @@ class FoodLogEntryViewModel @Inject constructor(
         if (state.items.isEmpty() || state.saved) return
 
         viewModelScope.launch {
-            val now = LocalDate.now().toString()
-            val time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+            val now = selectedDate.toString()
+            val time = if (selectedTime != LocalTime.MIDNIGHT) selectedTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                       else LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
             val model = aiServiceManager.clients.value.chatModel
             state.items.forEach { item ->
                 foodRepository.saveRecord(

@@ -16,15 +16,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shiji.app.ui.components.LoadingState
 import com.shiji.app.ui.foodconfirm.FoodConfirmContent
 import com.shiji.app.ui.foodconfirm.FoodLogEntryViewModel
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextRecordScreen(
     onBack: () -> Unit = {},
     onSaved: () -> Unit = {},
+    selectedDate: LocalDate = LocalDate.now(),
     onNavigateToAiSettings: () -> Unit = {},
     viewModel: FoodLogEntryViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(selectedDate) { viewModel.selectedDate = selectedDate }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var inputText by remember { mutableStateOf("") }
 

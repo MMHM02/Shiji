@@ -53,8 +53,6 @@ fun DietLogScreen(
                     IconButton(onClick = { showCalendar = !showCalendar }) {
                         Icon(Icons.Filled.CalendarMonth, "日历")
                     }
-                    IconButton(onClick = { onDateChange(date.minusDays(1)) }) { Icon(Icons.Filled.ChevronLeft, "前一天") }
-                    IconButton(onClick = { onDateChange(date.plusDays(1)) }) { Icon(Icons.Filled.ChevronRight, "后一天") }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )

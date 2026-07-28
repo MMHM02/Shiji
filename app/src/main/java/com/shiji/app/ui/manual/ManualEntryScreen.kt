@@ -30,6 +30,7 @@ import java.time.format.DateTimeFormatter
 fun ManualEntryScreen(
     onSaved: (FoodRecordEntity) -> Unit = {},
     onBack: () -> Unit = {},
+    selectedDate: LocalDate = LocalDate.now(),
     cachedFoods: List<CachedFoodItemEntity> = emptyList(),
     onSearchFoods: (String) -> List<CachedFoodItemEntity> = { emptyList() },
     viewModel: ManualEntryViewModel = hiltViewModel()
@@ -216,7 +217,7 @@ fun ManualEntryScreen(
                         carbsGrams = carbs.toDoubleOrNull() ?: 0.0,
                         fatGrams = fat.toDoubleOrNull() ?: 0.0,
                         mealType = selectedMeal,
-                        recordDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
+                        recordDate = selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
                         recordTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
                         source = "MANUAL"
                     )

@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
@@ -55,6 +56,9 @@ class CameraViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(CameraUiState())
     val uiState: StateFlow<CameraUiState> = _uiState.asStateFlow()
+
+    /** Set by the screen from NavGraph's current date — used for retroactive logging. */
+    var selectedDate: LocalDate = LocalDate.now()
 
     private var analysisJob: Job? = null
 
@@ -153,7 +157,7 @@ class CameraViewModel @Inject constructor(
         if (state.items.isEmpty() || state.saved) return
 
         viewModelScope.launch {
-            val now = java.time.LocalDate.now().toString()
+            val now = selectedDate.toString()
             val time = java.time.LocalTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
             val photoPath = state.photoUri?.let { persistPhoto(context, it) }

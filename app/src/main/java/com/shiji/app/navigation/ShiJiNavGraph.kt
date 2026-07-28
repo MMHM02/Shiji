@@ -200,6 +200,7 @@ fun ShiJiNavGraph() {
                 composable("camera") {
                     CameraScreen(onBack = { navController.popBackStack() },
                         onSaved = { navController.popBackStack() },
+                        selectedDate = currentDate,
                         onNavigateToAiSettings = { navController.navigate("ai_settings") },
                         onNavigateToTextRecord = {
                             navController.navigate("textrecord") { popUpTo("camera") { inclusive = true } }
@@ -208,10 +209,12 @@ fun ShiJiNavGraph() {
                 composable("textrecord") {
                     TextRecordScreen(onBack = { navController.popBackStack() },
                         onSaved = { navController.popBackStack() },
+                        selectedDate = currentDate,
                         onNavigateToAiSettings = { navController.navigate("ai_settings") })
                 }
                 composable("manual") {
                     ManualEntryScreen(cachedFoods = cachedFoods,
+                        selectedDate = currentDate,
                         onSearchFoods = { q -> cachedFoods.filter { it.name.contains(q, ignoreCase = true) } },
                         onSaved = { record -> mainViewModel.saveRecords(listOf(record)); navController.popBackStack() },
                         onBack = { navController.popBackStack() })
