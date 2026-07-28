@@ -6,12 +6,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-/**
- * .fitness file format — standard JSON, no password, human-readable.
- * Contains all user data except photos (photos are temporary).
- */
 @Serializable
 data class FitnessExportData(
     val version: Int = 1,
@@ -22,7 +21,6 @@ data class FitnessExportData(
     val cachedFoods: List<CachedFoodExportItem> = emptyList(),
     val aiProviders: List<AiProviderExportItem> = emptyList()
 )
-
 @Serializable data class UserProfileData(
     val heightCm: Double, val weightKg: Double, val goalType: String,
     val dailyCalories: Double, val proteinTarget: Double, val carbsTarget: Double, val fatTarget: Double
@@ -51,9 +49,7 @@ class DataExportManager {
     private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
 
     fun toJson(data: FitnessExportData): String = json.encodeToString(data)
-
-    fun fromJson(jsonString: String): FitnessExportData =
-        json.decodeFromString<FitnessExportData>(jsonString)
+    fun fromJson(jsonString: String): FitnessExportData = json.decodeFromString(jsonString)
 
     fun readFromUri(context: Context, uri: Uri): FitnessExportData {
         val reader = BufferedReader(InputStreamReader(context.contentResolver.openInputStream(uri)!!))
@@ -62,12 +58,32 @@ class DataExportManager {
         return fromJson(content)
     }
 
-    fun writeToFile(context: Context, data: FitnessExportData): Uri? {
-        val fileName = "shiji_backup_${data.exportDate.replace("-", "")}.fitness"
-        val content = toJson(data)
-        context.contentResolver.openOutputStream(
-            Uri.parse("content://com.shiji.app.debug/external_files/$fileName")
-        )?.use { it.write(content.toByteArray()) }
-        return null // Simplified — real implementation uses SAF
+    /** Backup folder — private to the app, survives uninstall only if the user backs it up manually. */
+    fun backupDir(context: Context): File =
+        File(context.filesDir, "shiji_backups").also { it.mkdirs() }
+
+    /**
+     * Write export to the backup folder. Deletes any existing .fitness file first
+     * (only one backup is kept at a time).
+     * @return the written file, or null on failure.
+     */
+    fun exportToFile(context: Context, data: FitnessExportData): File? {
+        val dir = backupDir(context)
+        // Remove old backups
+        dir.listFiles { f -> f.extension == "fitness" }?.forEach { it.delete() }
+        val stamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+        val file = File(dir, "shiji_backup_$stamp.fitness")
+        return try {
+            file.writeText(toJson(data))
+            file
+        } catch (_: Exception) { null }
     }
+
+    /** List .fitness files in the backup folder (typically 0 or 1). */
+    fun listBackupFiles(context: Context): List<File> =
+        backupDir(context).listFiles { f -> f.extension == "fitness" }?.toList() ?: emptyList()
+
+    /** Read a .fitness file from the backup folder. */
+    fun readBackupFile(file: File): FitnessExportData =
+        fromJson(file.readText())
 }
