@@ -200,9 +200,8 @@ class OpenAiCompatibleAdapter(
         return buildJsonObject {
             put("model", modelName)
             put("messages", msgArray)
-            put("temperature", 0.3)
-            // 2048 stays within every supported provider's limit
-            // (GLM caps at 4095, some Kimi models at 2048+).
+            // Omit temperature — reasoning models (Kimi k2, DeepSeek v4) reject
+            // non-1 values; every provider defaults to a sensible value anyway.
             put("max_tokens", 2048)
             if (stream) put("stream", true)
         }.toString()

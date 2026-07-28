@@ -62,7 +62,7 @@ fun AiSettingsScreen(
             item {
                 Text("选择 AI 提供商", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(4.dp))
-                Text("使用你自己的 API Key，Key 加密存储在本机，不会上传任何服务器",
+                Text("使用你自己的 API Key，Key 加密存储在本机。\n可分别为「对话」和「视觉」配置不同厂商的模型搭配使用。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

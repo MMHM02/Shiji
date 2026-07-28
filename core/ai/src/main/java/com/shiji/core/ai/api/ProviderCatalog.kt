@@ -37,10 +37,10 @@ object ProviderCatalog {
             id = "kimi",
             displayName = "Kimi (Moonshot)",
             baseUrl = "https://api.moonshot.cn/v1",
-            defaultChatModel = "moonshot-v1-8k",
+            defaultChatModel = "kimi-k2.6",
             defaultVisionModel = null,
             isVisionCapable = false,
-            description = "文本对话、长上下文",
+            description = "文本对话，支持 k2.6 / moonshot-v1 等",
             emoji = "🌙"
         ),
         ProviderSpec(
