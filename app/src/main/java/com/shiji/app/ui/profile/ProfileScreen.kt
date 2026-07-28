@@ -1,5 +1,6 @@
 package com.shiji.app.ui.profile
 
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -9,12 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.shiji.core.ai.usage.AiUsageTracker
 import com.shiji.app.ui.theme.BrandGreenDark
 import com.shiji.app.ui.theme.BrandGreenLight
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +78,17 @@ fun ProfileScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(modifier = Modifier.size(64.dp), shape = CircleShape, color = BrandGreenLight) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text(userAvatar, style = MaterialTheme.typography.headlineLarge)
+                                val isFilePath = userAvatar.startsWith("/") || userAvatar.endsWith(".jpg") || userAvatar.endsWith(".png")
+                                if (isFilePath) {
+                                    AsyncImage(
+                                        model = Uri.fromFile(File(userAvatar)),
+                                        contentDescription = "头像",
+                                        modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Text(userAvatar, style = MaterialTheme.typography.headlineLarge)
+                                }
                             }
                         }
                         Spacer(Modifier.width(16.dp))

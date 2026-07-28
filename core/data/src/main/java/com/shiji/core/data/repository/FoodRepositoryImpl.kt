@@ -52,4 +52,7 @@ class FoodRepositoryImpl(
 
     suspend fun cleanOldPhotos(beforeTimestamp: Long): Int =
         foodRecordDao.deleteRecordsWithOldPhotos(beforeTimestamp)
+
+    fun getDistinctDatesWithRecords(start: String, end: String): Flow<List<String>> =
+        foodRecordDao.getDistinctDatesWithRecords(start, end)
 }

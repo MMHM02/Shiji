@@ -162,4 +162,12 @@ class MainViewModel @Inject constructor(
     val aiUsageSummary: StateFlow<AiUsageTracker.UsageSummary> = aiUsageTracker.monthlySummary
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             AiUsageTracker.UsageSummary(0, 0, 0, 0, emptyMap()))
+
+    // ---------- calendar: dates with records (last 60 days) ----------
+    val last60DaysWithRecords: StateFlow<Set<LocalDate>> = _currentDate.flatMapLatest { today ->
+        foodRepository.getDistinctDatesWithRecords(
+            today.minusDays(59).toString(), today.toString()
+        )
+    }.map { list -> list.mapNotNull { runCatching { LocalDate.parse(it) }.getOrNull() }.toSet() }
+     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 }

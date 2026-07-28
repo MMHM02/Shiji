@@ -72,6 +72,7 @@ fun ShiJiNavGraph() {
     val waterMl by mainViewModel.waterMl.collectAsStateWithLifecycle()
     val waterGoal by mainViewModel.waterGoal.collectAsStateWithLifecycle()
     val aiUsage by mainViewModel.aiUsageSummary.collectAsStateWithLifecycle()
+    val datesWithRecords by mainViewModel.last60DaysWithRecords.collectAsStateWithLifecycle()
 
     val systemDark = isSystemInDarkTheme()
     val darkPref by mainViewModel.isDarkTheme.collectAsStateWithLifecycle()
@@ -237,7 +238,10 @@ fun ShiJiNavGraph() {
                         date = currentDate,
                         onDateChange = { mainViewModel.setDate(it) },
                         onDeleteRecord = { id -> mainViewModel.deleteRecord(id) },
-                        onBack = { navController.popBackStack() }
+                        onBack = { navController.popBackStack() },
+                        waterMl = waterMl,
+                        waterGoalMl = waterGoal,
+                        datesWithRecords = datesWithRecords
                     )
                 }
                 composable("food_library") {

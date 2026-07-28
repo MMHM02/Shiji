@@ -37,4 +37,7 @@ interface FoodRecordDao {
     /** ADR-23: photos are temporary — clear the reference (and file), keep the record itself. */
     @Query("UPDATE food_records SET imageUri = NULL WHERE imageUri IS NOT NULL AND imageUri != '' AND createdAt < :beforeTimestamp")
     suspend fun deleteRecordsWithOldPhotos(beforeTimestamp: Long): Int
+
+    @Query("SELECT DISTINCT recordDate FROM food_records WHERE recordDate BETWEEN :start AND :end ORDER BY recordDate ASC")
+    fun getDistinctDatesWithRecords(start: String, end: String): Flow<List<String>>
 }

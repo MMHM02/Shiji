@@ -54,9 +54,8 @@ fun PrivacyPolicyScreen(onBack: () -> Unit = {}) {
 
             Section("权限使用") {
                 Bullet("相机：仅用于拍摄食物照片")
-                Bullet("麦克风：仅用于语音记录")
                 Bullet("网络：仅用于 AI API 调用")
-                Bullet("Health Connect：仅用于读取健康数据（可选，Phase 4）")
+                Bullet("Health Connect：仅用于读取健康数据（可选，未来版本）")
             }
 
             Section("开源承诺") {
@@ -95,13 +94,12 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(16.dp))
 
-            InfoRow("版本", "V1.0.0 (Phase 1-6)")
+            InfoRow("版本", "v0.1.2")
             InfoRow("平台", "Android 8.0+")
-            InfoRow("架构", "MVVM + Clean Architecture")
             InfoRow("技术栈", "Kotlin + Compose + Room + Hilt")
             InfoRow("许可证", "Apache 2.0")
             InfoRow("代码仓库", "GitHub (开源)")
-            InfoRow("开发者", "Shawn")
+            InfoRow("开发者", "MMHM")
             Spacer(Modifier.height(16.dp))
 
             Card(
