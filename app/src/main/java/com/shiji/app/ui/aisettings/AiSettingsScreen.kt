@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shiji.core.ai.api.ProviderCatalog
+import com.shiji.core.data.entity.AiProviderEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +32,7 @@ fun AiSettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var configTarget by remember { mutableStateOf<ProviderCatalog.ProviderSpec?>(null) }
     var deleteTarget by remember { mutableStateOf<String?>(null) }
+    var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -46,7 +48,7 @@ fun AiSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            // ---- current status ----
+            // Status card
             item {
                 StatusCard(
                     chatLabel = uiState.chatProviderId?.let {
@@ -58,50 +60,157 @@ fun AiSettingsScreen(
                 )
             }
 
-            // ---- provider catalog ----
+            // Tabs
             item {
-                Text("选择 AI 提供商", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Text("选择模型", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(4.dp))
-                Text("使用你自己的 API Key，Key 加密存储在本机。\n可分别为「对话」和「视觉」配置不同厂商的模型搭配使用。",
+                Text("为文本和视觉分别选择模型，可以用同一个也可以不同。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(8.dp))
+
+                TabRow(selectedTabIndex = selectedTab) {
+                    Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 },
+                        text = { Text("💬 文本模型") })
+                    Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 },
+                        text = { Text("👁️ 视觉模型") })
+                }
+                Spacer(Modifier.height(4.dp))
+            }
+
+            // Tab content: pick a provider for the current slot
+            val slotProviderId = if (selectedTab == 0) uiState.chatProviderId else uiState.visionProviderId
+            val slotModel = if (selectedTab == 0) uiState.chatModel else uiState.visionModel
+
+            if (uiState.configuredProviders.isEmpty()) {
+                item {
+                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                        Column(modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("🔑", style = MaterialTheme.typography.headlineMedium)
+                            Spacer(Modifier.height(8.dp))
+                            Text("还没有配置 AI 提供商",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("在下方选择一个厂商并输入 API Key",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline)
+                        }
+                    }
+                }
+            } else {
+                items(uiState.configuredProviders, key = { it.id }) { provider ->
+                    val isSelected = provider.id == slotProviderId
+                    val hasVision = provider.isVisionCapable && provider.defaultVisionModel != null
+                    val isUsable = selectedTab == 0 || hasVision
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable(enabled = isUsable) {
+                            if (selectedTab == 0) {
+                                viewModel.setChatSlot(provider.id, provider.defaultChatModel ?: return@clickable)
+                            } else {
+                                viewModel.setVisionSlot(provider.id, provider.defaultVisionModel ?: return@clickable)
+                            }
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                            else MaterialTheme.colorScheme.surface
+                        ),
+                        border = if (isSelected) CardDefaults.outlinedCardBorder() else null,
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = {
+                                    if (selectedTab == 0) {
+                                        viewModel.setChatSlot(provider.id, provider.defaultChatModel ?: return@RadioButton)
+                                    } else {
+                                        viewModel.setVisionSlot(provider.id, provider.defaultVisionModel ?: return@RadioButton)
+                                    }
+                                },
+                                enabled = isUsable
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(provider.displayName, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    if (selectedTab == 0) provider.defaultChatModel ?: ""
+                                    else provider.defaultVisionModel ?: "该厂商无视觉模型",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            if (!isUsable) {
+                                Text("无视觉", style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.error)
+                            } else if (isSelected) {
+                                SlotChip("当前使用")
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Providers catalog
+            item {
+                Spacer(Modifier.height(8.dp))
+                Text("添加提供商", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(4.dp))
+                Text("使用你自己的 API Key，Key 加密存储在本机。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             items(viewModel.catalog) { spec ->
-                val entity = uiState.configuredProviders.firstOrNull { it.id == spec.id }
-                ProviderCard(
-                    spec = spec,
-                    configured = entity != null,
-                    isChatSlot = uiState.chatProviderId == spec.id,
-                    isVisionSlot = uiState.visionProviderId == spec.id,
-                    onClick = { configTarget = spec }
-                )
+                val configured = uiState.configuredProviders.any { it.id == spec.id }
+                Card(
+                    modifier = Modifier.fillMaxWidth().clickable { configTarget = spec },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = if (configured) CardDefaults.outlinedCardBorder() else null,
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Surface(modifier = Modifier.size(44.dp), shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(spec.emoji, style = MaterialTheme.typography.titleLarge)
+                            }
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(spec.displayName, fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.bodyLarge)
+                            Text(spec.description, style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (configured) {
+                            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Filled.Check, "已配置", tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(16.dp))
+                                }
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            IconButton(onClick = {
+                                val entity = uiState.configuredProviders.firstOrNull { it.id == spec.id }
+                                if (entity != null) deleteTarget = entity.id
+                            }) {
+                                Icon(Icons.Filled.DeleteOutline, "删除",
+                                    tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                            }
+                        } else {
+                            Icon(Icons.Filled.ChevronRight, "配置", tint = MaterialTheme.colorScheme.outline)
+                        }
+                    }
+                }
             }
 
-            // ---- configured providers ----
-            if (uiState.configuredProviders.isNotEmpty()) {
-                item {
-                    Spacer(Modifier.height(8.dp))
-                    Text("已配置", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                }
-                items(uiState.configuredProviders, key = { it.id }) { provider ->
-                    ConfiguredProviderCard(
-                        provider = provider,
-                        isChatSlot = uiState.chatProviderId == provider.id,
-                        isVisionSlot = uiState.visionProviderId == provider.id,
-                        onSetChat = {
-                            viewModel.setChatSlot(provider.id, provider.defaultChatModel ?: return@ConfiguredProviderCard)
-                        },
-                        onSetVision = {
-                            viewModel.setVisionSlot(provider.id, provider.defaultVisionModel ?: return@ConfiguredProviderCard)
-                        },
-                        onEdit = { ProviderCatalog.byId(provider.id)?.let { configTarget = it } },
-                        onDelete = { deleteTarget = provider.id }
-                    )
-                }
-            }
-
-            // ---- usage ----
+            // Usage
             uiState.usage?.let { usage ->
                 item {
                     Spacer(Modifier.height(8.dp))
@@ -113,16 +222,11 @@ fun AiSettingsScreen(
         }
     }
 
-    // ---- configure dialog ----
+    // Dialogs
     configTarget?.let { spec ->
-        ConfigureProviderDialog(
-            spec = spec,
-            viewModel = viewModel,
-            onDismiss = { configTarget = null }
-        )
+        ConfigureProviderDialog(spec = spec, viewModel = viewModel,
+            onDismiss = { configTarget = null })
     }
-
-    // ---- delete confirmation ----
     deleteTarget?.let { id ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
@@ -151,7 +255,7 @@ private fun StatusCard(chatLabel: String?, visionLabel: String?) {
             Text("当前 AI 配置", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer)
             Spacer(Modifier.height(10.dp))
-            StatusRow("💬", "对话模型", chatLabel ?: "未配置 — AI 顾问/文字识别不可用")
+            StatusRow("💬", "文本模型", chatLabel ?: "未配置 — AI 顾问/文字识别不可用")
             Spacer(Modifier.height(6.dp))
             StatusRow("👁️", "视觉模型", visionLabel ?: "未配置 — 拍照识食不可用")
         }
@@ -171,139 +275,24 @@ private fun StatusRow(emoji: String, label: String, value: String) {
 }
 
 @Composable
-private fun ProviderCard(
-    spec: ProviderCatalog.ProviderSpec,
-    configured: Boolean,
-    isChatSlot: Boolean,
-    isVisionSlot: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = if (configured) CardDefaults.outlinedCardBorder() else null,
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(modifier = Modifier.size(44.dp), shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(spec.emoji, style = MaterialTheme.typography.titleLarge)
-                }
-            }
-            Spacer(Modifier.width(16.dp))
-            Column(Modifier.weight(1f)) {
-                Text(spec.displayName, fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodyLarge)
-                Text(spec.description, style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                if (configured) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        if (isChatSlot) SlotChip("对话")
-                        if (isVisionSlot) SlotChip("视觉")
-                    }
-                }
-            }
-            if (configured) {
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Check, "已配置", tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(16.dp))
-                    }
-                }
-            } else {
-                Icon(Icons.Filled.ChevronRight, "配置", tint = MaterialTheme.colorScheme.outline)
-            }
-        }
-    }
-}
-
-@Composable
 private fun SlotChip(label: String) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-    ) {
+    Surface(shape = RoundedCornerShape(6.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)) {
         Text(label, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-private fun ConfiguredProviderCard(
-    provider: com.shiji.core.data.entity.AiProviderEntity,
-    isChatSlot: Boolean,
-    isVisionSlot: Boolean,
-    onSetChat: () -> Unit,
-    onSetVision: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(provider.displayName, fontWeight = FontWeight.SemiBold)
-                    Text(provider.defaultChatModel ?: "", style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Filled.Edit, "编辑", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Filled.DeleteOutline, "删除", tint = MaterialTheme.colorScheme.error)
-                }
-            }
-            Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (isChatSlot) {
-                    SlotChip("✓ 当前对话模型")
-                } else {
-                    OutlinedButton(onClick = onSetChat, shape = RoundedCornerShape(20.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        modifier = Modifier.height(32.dp)) {
-                        Text("设为对话模型", style = MaterialTheme.typography.labelSmall)
-                    }
-                }
-                if (provider.isVisionCapable && provider.defaultVisionModel != null) {
-                    if (isVisionSlot) {
-                        SlotChip("✓ 当前视觉模型")
-                    } else {
-                        OutlinedButton(onClick = onSetVision, shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            modifier = Modifier.height(32.dp)) {
-                            Text("设为视觉模型", style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
-                }
-            }
-        }
+            style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 private fun UsageCard(usage: com.shiji.core.ai.usage.AiUsageTracker.UsageSummary) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))) {
         Column(Modifier.padding(16.dp)) {
             Text("📊 本月用量", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(10.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 UsageStat("${usage.totalCalls}", "调用次数")
-                UsageStat(
-                    if (usage.totalCalls > 0) "${usage.successCalls * 100 / usage.totalCalls}%" else "—",
-                    "成功率"
-                )
+                UsageStat(if (usage.totalCalls > 0) "${usage.successCalls * 100 / usage.totalCalls}%" else "—", "成功率")
                 UsageStat(formatTokens(usage.inputTokens + usage.outputTokens), "Token 消耗")
             }
         }
@@ -314,8 +303,7 @@ private fun UsageCard(usage: com.shiji.core.ai.usage.AiUsageTracker.UsageSummary
 private fun UsageStat(value: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text(label, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -346,71 +334,44 @@ private fun ConfigureProviderDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = { apiKey = it; viewModel.resetTestState() },
-                    label = { Text("API Key") },
-                    placeholder = { Text(spec.keyHint) },
-                    visualTransformation = if (showKey) VisualTransformation.None
-                    else PasswordVisualTransformation(),
+                    value = apiKey, onValueChange = { apiKey = it; viewModel.resetTestState() },
+                    label = { Text("API Key") }, placeholder = { Text(spec.keyHint) },
+                    visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { showKey = !showKey }) {
                             Icon(if (showKey) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, "显示/隐藏")
                         }
                     },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
+                    singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
 
                 if (spec.isCustom) {
-                    OutlinedTextField(
-                        value = baseUrl,
-                        onValueChange = { baseUrl = it; viewModel.resetTestState() },
-                        label = { Text("接口地址 (Base URL)") },
-                        placeholder = { Text("https://api.openai.com/v1") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                    OutlinedTextField(value = baseUrl, onValueChange = { baseUrl = it; viewModel.resetTestState() },
+                        label = { Text("接口地址 (Base URL)") }, placeholder = { Text("https://api.openai.com/v1") },
+                        singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
                 }
 
-                OutlinedTextField(
-                    value = chatModel,
-                    onValueChange = { chatModel = it },
-                    label = { Text("对话模型") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
+                OutlinedTextField(value = chatModel, onValueChange = { chatModel = it },
+                    label = { Text("文本模型") }, singleLine = true,
+                    modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
 
                 if (spec.isVisionCapable) {
-                    OutlinedTextField(
-                        value = visionModel,
-                        onValueChange = { visionModel = it },
-                        label = { Text("视觉模型（可选，用于拍照识食）") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                    OutlinedTextField(value = visionModel, onValueChange = { visionModel = it },
+                        label = { Text("视觉模型（拍照识食用）") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
                 }
 
-                // connection test
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(
-                        onClick = {
-                            viewModel.testConnection(
-                                baseUrl = if (spec.isCustom) baseUrl else spec.baseUrl,
-                                apiKey = apiKey,
-                                model = chatModel.ifBlank { spec.defaultChatModel }
-                            )
-                        },
-                        enabled = apiKey.isNotBlank() &&
-                                (!spec.isCustom || baseUrl.isNotBlank()) &&
-                                testState !is AiSettingsViewModel.TestState.Testing,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
+                    OutlinedButton(onClick = {
+                        viewModel.testConnection(
+                            baseUrl = if (spec.isCustom) baseUrl else spec.baseUrl,
+                            apiKey = apiKey,
+                            model = chatModel.ifBlank { spec.defaultChatModel })
+                    },
+                        enabled = apiKey.isNotBlank() && (!spec.isCustom || baseUrl.isNotBlank())
+                                && testState !is AiSettingsViewModel.TestState.Testing,
+                        shape = RoundedCornerShape(12.dp)) {
                         Text(if (testState is AiSettingsViewModel.TestState.Testing) "测试中..." else "🔌 测试连接")
                     }
                     when (val s = testState) {
@@ -425,27 +386,18 @@ private fun ConfigureProviderDialog(
                 }
 
                 Text("Key 仅加密存储在本机，不会上传到任何服务器。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline)
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    viewModel.saveProvider(
-                        spec = spec,
-                        apiKey = apiKey,
-                        baseUrl = baseUrl,
-                        chatModel = chatModel,
-                        visionModel = visionModel.ifBlank { null },
-                        onDone = { viewModel.resetTestState(); onDismiss() }
-                    )
-                },
-                enabled = apiKey.isNotBlank() && (!spec.isCustom || baseUrl.isNotBlank())
-            ) { Text("保存") }
+            Button(onClick = {
+                viewModel.saveProvider(spec = spec, apiKey = apiKey, baseUrl = baseUrl,
+                    chatModel = chatModel, visionModel = visionModel.ifBlank { null },
+                    onDone = { viewModel.resetTestState(); onDismiss() })
+            }, enabled = apiKey.isNotBlank() && (!spec.isCustom || baseUrl.isNotBlank())) {
+                Text("保存")
+            }
         },
-        dismissButton = {
-            TextButton(onClick = { viewModel.resetTestState(); onDismiss() }) { Text("取消") }
-        }
+        dismissButton = { TextButton(onClick = { viewModel.resetTestState(); onDismiss() }) { Text("取消") } }
     )
 }
