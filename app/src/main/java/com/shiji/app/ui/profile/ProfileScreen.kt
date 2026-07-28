@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.shiji.core.ai.usage.AiUsageTracker
 import com.shiji.app.ui.theme.BrandGreenDark
 import com.shiji.app.ui.theme.BrandGreenLight
 
@@ -22,6 +23,7 @@ fun ProfileScreen(
     userName: String = "Shawn",
     userAvatar: String = "👤",
     isDarkTheme: Boolean = false,
+    aiUsage: AiUsageTracker.UsageSummary = AiUsageTracker.UsageSummary(0, 0, 0, 0, emptyMap()),
     onEditProfile: (name: String, avatar: String) -> Unit = { _, _ -> },
     onToggleDarkTheme: (Boolean) -> Unit = {},
     onNavigateToGoal: () -> Unit = {},
@@ -70,7 +72,9 @@ fun ProfileScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(modifier = Modifier.size(64.dp), shape = CircleShape, color = BrandGreenLight) {
-                            Box(contentAlignment = Alignment.Center) { Text(userAvatar, style = MaterialTheme.typography.headlineLarge) }
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(userAvatar, style = MaterialTheme.typography.headlineLarge)
+                            }
                         }
                         Spacer(Modifier.width(16.dp))
                         Column(Modifier.weight(1f)) {
@@ -82,29 +86,30 @@ fun ProfileScreen(
                     }
                     Spacer(Modifier.height(16.dp))
                     Surface(shape = RoundedCornerShape(50), color = BrandGreenLight) {
-                        Text("🎯 目标：减脂 · 每日 1,800 kcal",
+                        Text("🎯 目标 · 点击下方目标设定修改",
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, color = BrandGreenDark)
+                            style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium,
+                            color = BrandGreenDark)
                     }
                 }
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // AI Assistant
+            // AI
             SectionDivider("AI 助手")
             SettingsItem("🤖", "AI 营养顾问", onClick = onNavigateToAIChat)
 
             Spacer(Modifier.height(8.dp))
 
-            // Health section
+            // Health
             SectionDivider("健康")
             SettingsItem("⚖️", "体重追踪", onClick = onNavigateToWeight)
             SettingsItem("💧", "水分摄入", onClick = onNavigateToWater)
 
             Spacer(Modifier.height(8.dp))
 
-            // Settings section
+            // Settings
             SectionDivider("设置")
             SettingsItem("🎯", "目标设定", onClick = onNavigateToGoal)
             SettingsItem("🔑", "AI 模型配置", onClick = onNavigateToAiSettings)
@@ -118,7 +123,7 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // Stats section
+            // Stats — live from AiUsageTracker
             SectionDivider("统计")
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -130,8 +135,9 @@ fun ProfileScreen(
                     Text("📊 AI 用量统计", style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(12.dp))
-                    UsageRow("本月调用", "0 次")
-                    UsageRow("估算费用", "¥0.00")
+                    UsageRow("本月调用", "${aiUsage.totalCalls} 次")
+                    UsageRow("成功", "${aiUsage.successCalls} 次")
+                    UsageRow("Token 消耗", formatTokens(aiUsage.inputTokens + aiUsage.outputTokens))
                 }
             }
             Spacer(Modifier.height(32.dp))
@@ -167,6 +173,13 @@ private fun UsageRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+        Text(value, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold)
     }
+}
+
+private fun formatTokens(tokens: Long): String = when {
+    tokens >= 1_000_000 -> "%.1fM".format(tokens / 1_000_000.0)
+    tokens >= 1_000 -> "%.1fK".format(tokens / 1_000.0)
+    else -> tokens.toString()
 }

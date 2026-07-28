@@ -32,7 +32,7 @@ class HomeScreenTest {
             }
         }
         composeTestRule.onNodeWithText("拍照识食").assertExists()
-        composeTestRule.onNodeWithText("语音记录").assertExists()
+        composeTestRule.onNodeWithText("文字记录").assertExists()
         composeTestRule.onNodeWithText("手动记录").assertExists()
     }
 

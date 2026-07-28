@@ -18,22 +18,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shiji.app.ui.theme.BrandGreen
 import com.shiji.app.ui.theme.Fat
+import com.shiji.core.data.entity.HealthMetricEntity
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-data class WeightEntry(val date: String, val weight: Double)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeightScreen(onBack: () -> Unit = {}) {
+fun WeightScreen(
+    onBack: () -> Unit = {},
+    onSaveWeight: (Double) -> Unit = {},
+    weightHistory: Flow<List<HealthMetricEntity>> = kotlinx.coroutines.flow.flowOf(emptyList())
+) {
     var selectedRange by remember { mutableIntStateOf(7) }
     var weightInput by remember { mutableStateOf("") }
     var showAddDialog by remember { mutableStateOf(false) }
-    var weightData by remember { mutableStateOf(listOf<WeightEntry>()) }
 
-    val latestWeight = weightData.lastOrNull()?.weight
+    // Real Room data
+    val weightData by weightHistory.collectAsStateWithLifecycle(emptyList())
+
+    val latestWeight = weightData.lastOrNull()?.value
     val isEmpty = weightData.isEmpty()
 
     Scaffold(
@@ -71,8 +78,8 @@ fun WeightScreen(onBack: () -> Unit = {}) {
                 }
             }
 
-            // Chart (only if data exists)
-            if (!isEmpty) {
+            // Chart
+            if (!isEmpty && weightData.size >= 2) {
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
@@ -96,23 +103,23 @@ fun WeightScreen(onBack: () -> Unit = {}) {
                                 val cW = w - pL - pR; val cH = h - pT - pB
                                 val pts = weightData.takeLast(selectedRange.coerceAtMost(weightData.size))
                                 if (pts.size >= 2) {
-                                    val minW = (pts.minOf { it.weight } - 0.5).toFloat()
-                                    val maxW = (pts.maxOf { it.weight } + 0.5).toFloat()
+                                    val minW = (pts.minOf { it.value } - 0.5).toFloat()
+                                    val maxW = (pts.maxOf { it.value } + 0.5).toFloat()
                                     for (i in 0..3) {
                                         val y = pT + cH * i / 3f
                                         drawLine(Color.Gray.copy(alpha = 0.2f), Offset(pL, y), Offset(w - pR, y), 1f)
                                     }
                                     for (i in 0 until pts.size - 1) {
                                         val x1 = pL + cW * i / (pts.size - 1).toFloat()
-                                        val y1 = pT + cH * (1f - (pts[i].weight.toFloat() - minW) / (maxW - minW))
+                                        val y1 = pT + cH * (1f - (pts[i].value.toFloat() - minW) / (maxW - minW))
                                         val x2 = pL + cW * (i + 1) / (pts.size - 1).toFloat()
-                                        val y2 = pT + cH * (1f - (pts[i + 1].weight.toFloat() - minW) / (maxW - minW))
+                                        val y2 = pT + cH * (1f - (pts[i + 1].value.toFloat() - minW) / (maxW - minW))
                                         drawLine(Fat, Offset(x1, y1), Offset(x2, y2), 2.5.dp.toPx())
                                     }
                                     pts.forEachIndexed { i, pt ->
-                                        val x = pL + cW * i / (pts.size - 1).toFloat()
-                                        val y = pT + cH * (1f - (pt.weight.toFloat() - minW) / (maxW - minW))
-                                        drawCircle(Fat, 4.dp.toPx(), Offset(x, y))
+                                        drawCircle(Fat, 4.dp.toPx(),
+                                            Offset(pL + cW * i / (pts.size - 1).toFloat(),
+                                                pT + cH * (1f - (pt.value.toFloat() - minW) / (maxW - minW))))
                                     }
                                 }
                             }
@@ -137,8 +144,8 @@ fun WeightScreen(onBack: () -> Unit = {}) {
                     Row(modifier = Modifier.padding(16.dp).fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically) {
-                        Text(entry.date, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${entry.weight} kg", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold)
+                        Text(entry.recordDate, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${entry.value} kg", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -160,9 +167,7 @@ fun WeightScreen(onBack: () -> Unit = {}) {
                 Button(onClick = {
                     val w = weightInput.toDoubleOrNull()
                     if (w != null && w > 0) {
-                        weightData = weightData + WeightEntry(
-                            LocalDate.now().format(DateTimeFormatter.ofPattern("M/dd")), w
-                        )
+                        onSaveWeight(w)
                     }
                     showAddDialog = false; weightInput = ""
                 }) { Text("保存") }

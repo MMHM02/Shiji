@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -45,10 +44,10 @@ import com.shiji.app.ui.onboarding.OnboardingScreen
 import com.shiji.app.ui.profile.ProfileScreen
 import com.shiji.app.ui.theme.ShiJiTheme
 import com.shiji.app.ui.textrecord.TextRecordScreen
-import com.shiji.app.ui.voice.VoiceRecorderScreen
 import com.shiji.app.ui.water.WaterScreen
 import com.shiji.app.ui.weight.WeightScreen
 import com.shiji.core.data.entity.UserGoalEntity
+import androidx.compose.ui.unit.dp
 
 data class BottomNavTab(val route: String, val label: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector)
 val bottomNavTabs = listOf(
@@ -62,7 +61,6 @@ fun ShiJiNavGraph() {
     val navController = rememberNavController()
     val mainViewModel: MainViewModel = hiltViewModel()
 
-    // ---- app state from Room / DataStore ----
     val currentDate by mainViewModel.currentDate.collectAsStateWithLifecycle()
     val currentDateRecords by mainViewModel.currentDateRecords.collectAsStateWithLifecycle()
     val weekRecords by mainViewModel.weekRecords.collectAsStateWithLifecycle()
@@ -71,12 +69,14 @@ fun ShiJiNavGraph() {
     val onboardingDone by mainViewModel.onboardingDone.collectAsStateWithLifecycle()
     val userName by mainViewModel.userName.collectAsStateWithLifecycle()
     val userAvatar by mainViewModel.userAvatar.collectAsStateWithLifecycle()
+    val waterMl by mainViewModel.waterMl.collectAsStateWithLifecycle()
+    val waterGoal by mainViewModel.waterGoal.collectAsStateWithLifecycle()
+    val aiUsage by mainViewModel.aiUsageSummary.collectAsStateWithLifecycle()
 
     val systemDark = isSystemInDarkTheme()
     val darkPref by mainViewModel.isDarkTheme.collectAsStateWithLifecycle()
     val isDarkTheme = darkPref ?: systemDark
 
-    // Wait for the onboarding flag before choosing the start destination.
     val startDestination = when (onboardingDone) {
         null -> null
         false -> "onboarding"
@@ -85,7 +85,6 @@ fun ShiJiNavGraph() {
 
     ShiJiTheme(darkTheme = isDarkTheme) {
         if (startDestination == null) {
-            // Brief splash while preferences load (first frame only).
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
@@ -134,9 +133,12 @@ fun ShiJiNavGraph() {
                         proteinTarget = userGoal?.proteinTargetGrams?.toFloat() ?: 60f,
                         carbsTarget = userGoal?.carbsTargetGrams?.toFloat() ?: 250f,
                         fatTarget = userGoal?.fatTargetGrams?.toFloat() ?: 65f,
+                        waterMl = waterMl,
+                        waterGoalMl = waterGoal,
+                        onAddWater = { mainViewModel.addWater(it) },
+                        onSetWaterGoal = { mainViewModel.setWaterGoal(it) },
                         onNavigateToCamera = { navController.navigate("camera") },
                         onNavigateToTextRecord = { navController.navigate("textrecord") },
-                        onNavigateToVoice = { navController.navigate("voice") },
                         onNavigateToManual = { navController.navigate("manual") },
                         onNavigateToSettings = { navController.navigate("profile") },
                         onNavigateToDietLog = { navController.navigate("diet_log") }
@@ -159,6 +161,7 @@ fun ShiJiNavGraph() {
                     ProfileScreen(
                         userName = userName, userAvatar = userAvatar,
                         isDarkTheme = isDarkTheme,
+                        aiUsage = aiUsage,
                         onEditProfile = { name, avatar -> mainViewModel.updateProfile(name, avatar) },
                         onToggleDarkTheme = { mainViewModel.setDarkTheme(it) },
                         onNavigateToGoal = { navController.navigate("goal") },
@@ -173,7 +176,7 @@ fun ShiJiNavGraph() {
                     )
                 }
 
-                // === AI Chat (prompt is URL-encoded; empty = fresh chat) ===
+                // === AI Chat ===
                 composable("ai_chat") {
                     AiChatScreen(
                         initialPrompt = "",
@@ -184,13 +187,10 @@ fun ShiJiNavGraph() {
                 }
                 composable(
                     route = "ai_chat/{prompt}",
-                    arguments = listOf(navArgument("prompt") {
-                        type = NavType.StringType; defaultValue = ""
-                    })
+                    arguments = listOf(navArgument("prompt") { type = NavType.StringType; defaultValue = "" })
                 ) { backStackEntry ->
-                    val prompt = Uri.decode(backStackEntry.arguments?.getString("prompt") ?: "")
                     AiChatScreen(
-                        initialPrompt = prompt,
+                        initialPrompt = Uri.decode(backStackEntry.arguments?.getString("prompt") ?: ""),
                         userName = userName,
                         onBack = { navController.popBackStack() },
                         onNavigateToAiSettings = { navController.navigate("ai_settings") }
@@ -198,11 +198,9 @@ fun ShiJiNavGraph() {
                 }
 
                 // === AI Settings ===
-                composable("ai_settings") {
-                    AiSettingsScreen(onBack = { navController.popBackStack() })
-                }
+                composable("ai_settings") { AiSettingsScreen(onBack = { navController.popBackStack() }) }
 
-                // === Food entry flows ===
+                // === Food entry ===
                 composable("camera") {
                     CameraScreen(
                         onBack = { navController.popBackStack() },
@@ -211,13 +209,6 @@ fun ShiJiNavGraph() {
                         onNavigateToTextRecord = {
                             navController.navigate("textrecord") { popUpTo("camera") { inclusive = true } }
                         }
-                    )
-                }
-                composable("voice") {
-                    VoiceRecorderScreen(
-                        onBack = { navController.popBackStack() },
-                        onSaved = { navController.popBackStack() },
-                        onNavigateToAiSettings = { navController.navigate("ai_settings") }
                     )
                 }
                 composable("textrecord") {
@@ -239,7 +230,7 @@ fun ShiJiNavGraph() {
                     )
                 }
 
-                // === Logs & library ===
+                // === Logs ===
                 composable("diet_log") {
                     DietLogScreen(
                         records = currentDateRecords,
@@ -259,18 +250,29 @@ fun ShiJiNavGraph() {
                 }
 
                 // === Health ===
-                composable("weight") { WeightScreen(onBack = { navController.popBackStack() }) }
-                composable("water") { WaterScreen(onBack = { navController.popBackStack() }) }
+                composable("weight") {
+                    WeightScreen(
+                        onBack = { navController.popBackStack() },
+                        onSaveWeight = { mainViewModel.saveWeight(it) },
+                        weightHistory = mainViewModel.weightHistoryFlow(
+                            java.time.LocalDate.now().minusDays(90).toString(),
+                            java.time.LocalDate.now().toString()
+                        )
+                    )
+                }
+                composable("water") {
+                    WaterScreen(
+                        onBack = { navController.popBackStack() },
+                        waterMl = waterMl,
+                        waterGoalMl = waterGoal,
+                        onAddWater = { mainViewModel.addWater(it) },
+                        onSetWaterGoal = { mainViewModel.setWaterGoal(it) }
+                    )
+                }
                 composable("goal") {
                     GoalSettingScreen(
                         onBack = { navController.popBackStack() },
-                        onSave = { heightCm, weightKg, goalType ->
-                            mainViewModel.saveGoal(
-                                UserGoalEntity.calculate(heightCm, weightKg, goalType)
-                                    .copy(updatedAt = System.currentTimeMillis())
-                            )
-                            navController.popBackStack()
-                        }
+                        onSave = { goal -> mainViewModel.saveGoal(goal); navController.popBackStack() }
                     )
                 }
 
@@ -281,19 +283,15 @@ fun ShiJiNavGraph() {
                         step = step,
                         onStepChange = { step = it },
                         onComplete = { heightCm, weightKg, goalType ->
-                            mainViewModel.saveGoal(
-                                UserGoalEntity.calculate(heightCm, weightKg, goalType)
-                            )
+                            mainViewModel.saveGoal(UserGoalEntity(
+                                heightCm = heightCm, currentWeightKg = weightKg, goalType = goalType
+                            ))
                             mainViewModel.completeOnboarding()
-                            navController.navigate("home") {
-                                popUpTo("onboarding") { inclusive = true }
-                            }
+                            navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
                         },
                         onSkip = {
                             mainViewModel.completeOnboarding()
-                            navController.navigate("home") {
-                                popUpTo("onboarding") { inclusive = true }
-                            }
+                            navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
                         },
                         onNavigateToAiSettings = { navController.navigate("ai_settings") }
                     )

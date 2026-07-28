@@ -1,5 +1,9 @@
 package com.shiji.app.ui.profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,8 +17,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import java.io.File
+import java.io.FileOutputStream
 
 val avatarOptions = listOf(
     "👤", "😊", "💪", "🏃", "🥗", "🍎", "🔥", "⚡", "🌟", "💚",
@@ -30,6 +39,22 @@ fun EditProfileDialog(
 ) {
     var name by remember { mutableStateOf(currentName) }
     var selectedAvatar by remember { mutableStateOf(currentAvatar) }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            // Copy to internal storage for persistence
+            val file = File(context.filesDir, "profile_photo.jpg")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(file).use { output -> input.copyTo(output) }
+            }
+            photoUri = Uri.fromFile(file)
+            selectedAvatar = file.absolutePath // store path as avatar
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -46,10 +71,26 @@ fun EditProfileDialog(
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(selectedAvatar, style = MaterialTheme.typography.headlineLarge)
+                        if (photoUri != null) {
+                            AsyncImage(
+                                model = photoUri,
+                                contentDescription = "头像",
+                                modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Text(selectedAvatar, style = MaterialTheme.typography.headlineLarge)
+                        }
                     }
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
+                TextButton(onClick = { galleryLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                ) }) {
+                    Text("📷 从相册选择")
+                }
+
+                Spacer(Modifier.height(12.dp))
 
                 // Name
                 OutlinedTextField(
@@ -61,8 +102,8 @@ fun EditProfileDialog(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                // Avatar picker
-                Text("选择头像", style = MaterialTheme.typography.bodySmall,
+                // Emoji avatar picker
+                Text("或选择 Emoji 头像", style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
@@ -82,7 +123,10 @@ fun EditProfileDialog(
                                     if (isSelected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                     else Modifier.border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), CircleShape)
                                 )
-                                .clickable { selectedAvatar = avatar },
+                                .clickable {
+                                    selectedAvatar = avatar
+                                    photoUri = null
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             Text(avatar, style = MaterialTheme.typography.titleLarge)

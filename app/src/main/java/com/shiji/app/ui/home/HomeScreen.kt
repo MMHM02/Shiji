@@ -28,15 +28,17 @@ fun HomeScreen(
     proteinTarget: Float = 60f,
     carbsTarget: Float = 250f,
     fatTarget: Float = 65f,
+    waterMl: Int = 0,
+    waterGoalMl: Int = 2000,
+    onAddWater: (Int) -> Unit = {},
+    onSetWaterGoal: (Int) -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
     onNavigateToTextRecord: () -> Unit = {},
-    onNavigateToVoice: () -> Unit = {},
     onNavigateToManual: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToDietLog: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val dailyTarget = calorieTarget
     val totalCal = todayRecords.sumOf { it.calories }.toFloat()
     val totalProtein = todayRecords.sumOf { it.proteinGrams }.toFloat()
     val totalCarbs = todayRecords.sumOf { it.carbsGrams }.toFloat()
@@ -65,11 +67,22 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // Calories Ring
+            // Calories Ring + Water Bar (side by side)
             item {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CaloriesRing(intake = totalCal, target = dailyTarget, size = 240.dp,
-                        modifier = Modifier.padding(vertical = 16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CaloriesRing(intake = totalCal, target = calorieTarget, size = 200.dp)
+                    Spacer(Modifier.width(20.dp))
+                    WaterProgressBar(
+                        waterMl = waterMl,
+                        goalMl = waterGoalMl,
+                        onAdd = onAddWater,
+                        onSetGoal = onSetWaterGoal,
+                        height = 200.dp
+                    )
                 }
             }
 
@@ -86,22 +99,18 @@ fun HomeScreen(
                 }
             }
 
-            // Quick Entry Cards — 4 entry points incl. voice
+            // Quick Entry — 3 buttons (no voice)
             item {
-                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        QuickEntryCard(icon = Icons.Filled.CameraAlt, label = "拍照识食",
-                            onClick = onNavigateToCamera, modifier = Modifier.weight(1f))
-                        QuickEntryCard(icon = Icons.Filled.Mic, label = "语音记录",
-                            onClick = onNavigateToVoice, modifier = Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        QuickEntryCard(icon = Icons.Outlined.Create, label = "文字记录",
-                            onClick = onNavigateToTextRecord, modifier = Modifier.weight(1f))
-                        QuickEntryCard(icon = Icons.Filled.EditNote, label = "手动记录",
-                            onClick = onNavigateToManual, modifier = Modifier.weight(1f))
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    QuickEntryCard(icon = Icons.Filled.CameraAlt, label = "拍照识食",
+                        onClick = onNavigateToCamera, modifier = Modifier.weight(1f))
+                    QuickEntryCard(icon = Icons.Outlined.Create, label = "文字记录",
+                        onClick = onNavigateToTextRecord, modifier = Modifier.weight(1f))
+                    QuickEntryCard(icon = Icons.Filled.EditNote, label = "手动记录",
+                        onClick = onNavigateToManual, modifier = Modifier.weight(1f))
                 }
             }
 
@@ -118,7 +127,7 @@ fun HomeScreen(
                 }
             }
 
-            // Food list or empty
+            // Food list
             if (todayRecords.isEmpty()) {
                 item {
                     EmptyState(icon = "🍽️", title = "还没有记录",
@@ -126,17 +135,18 @@ fun HomeScreen(
                         actionLabel = "文字记录", onAction = onNavigateToTextRecord)
                 }
             } else {
-                // Group by meal
                 val mealOrder = listOf("BREAKFAST", "LUNCH", "SNACK", "DINNER")
                 val grouped = todayRecords.groupBy { it.mealType }
                 mealOrder.forEach { mealType ->
                     val meals = grouped[mealType] ?: return@forEach
                     val subtotal = meals.sumOf { it.calories }.toInt()
                     item {
-                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(PortionConverter.mealTypeDisplay(mealType), style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text("${meals.first().recordTime} · ${subtotal} kcal", style = MaterialTheme.typography.bodySmall,
+                            Text("${meals.first().recordTime} · ${subtotal} kcal",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
@@ -146,16 +156,21 @@ fun HomeScreen(
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(PortionConverter.mealTypeEmoji(record.mealType), style = MaterialTheme.typography.titleLarge)
+                            Row(modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Text(PortionConverter.mealTypeEmoji(record.mealType),
+                                    style = MaterialTheme.typography.titleLarge)
                                 Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {
-                                    Text(record.foodName, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyLarge)
-                                    Text("${record.portion.toInt()}${record.portionUnit}",
-                                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(record.foodName, fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.bodyLarge)
+                                    Text(formatPortion(record.portion, record.portionUnit),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Text("${record.calories.toInt()}", fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = Calories)
+                                    style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold,
+                                    color = Calories)
                                 Text(" kcal", style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
@@ -166,6 +181,12 @@ fun HomeScreen(
             item { Spacer(Modifier.height(16.dp)) }
         }
     }
+}
+
+private fun formatPortion(portion: Double, unit: String): String {
+    val p = if (portion == portion.toLong().toDouble()) portion.toLong().toString()
+    else String.format("%.1f", portion)
+    return "$p$unit"
 }
 
 private fun getTodayLabel(): String {

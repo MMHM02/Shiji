@@ -24,6 +24,7 @@ class UserPreferences(private val context: Context) {
         val KEY_LAST_SYNC_TIMESTAMP = longPreferencesKey("last_sync_timestamp")
         val KEY_USER_NAME = stringPreferencesKey("user_name")
         val KEY_USER_AVATAR = stringPreferencesKey("user_avatar")
+        val KEY_WATER_GOAL = intPreferencesKey("water_goal")
     }
 
     val isDarkTheme: Flow<Boolean> = context.dataStore.data.map { it[KEY_THEME_DARK] ?: false }
@@ -80,5 +81,11 @@ class UserPreferences(private val context: Context) {
 
     suspend fun setUserAvatar(avatar: String) {
         context.dataStore.edit { it[KEY_USER_AVATAR] = avatar }
+    }
+
+    val waterGoal: Flow<Int> = context.dataStore.data.map { it[KEY_WATER_GOAL] ?: 2000 }
+
+    suspend fun setWaterGoal(ml: Int) {
+        context.dataStore.edit { it[KEY_WATER_GOAL] = ml }
     }
 }
