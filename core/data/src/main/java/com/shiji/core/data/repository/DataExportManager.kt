@@ -59,9 +59,11 @@ class DataExportManager {
         return fromJson(content)
     }
 
-    /** Backup folder — public Downloads directory, accessible from any file manager. */
-    fun backupDir(context: Context): File =
-        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "ShiJi").also { it.mkdirs() }
+    /** Backup folder — inside Android/data, accessible via file manager. */
+    fun backupDir(context: Context): File {
+        val dir = context.getExternalFilesDir(null) ?: context.filesDir
+        return File(dir, "ShiJi").also { it.mkdirs() }
+    }
 
     /**
      * Write export to the backup folder. Deletes any existing .fitness file first

@@ -265,8 +265,12 @@ fun ShiJiNavGraph() {
                 composable("onboarding") {
                     var step by remember { mutableIntStateOf(1) }
                     OnboardingScreen(step = step, onStepChange = { step = it },
-                        onComplete = { heightCm, weightKg, goalType ->
-                            mainViewModel.saveGoal(UserGoalEntity(heightCm = heightCm, currentWeightKg = weightKg, goalType = goalType))
+                        onComplete = { heightCm, weightKg, goalType, dailyCals, protein, carbs, fat ->
+                            mainViewModel.saveGoal(UserGoalEntity(
+                                heightCm = heightCm, currentWeightKg = weightKg, goalType = goalType,
+                                dailyCalories = dailyCals, proteinTargetGrams = protein,
+                                carbsTargetGrams = carbs, fatTargetGrams = fat,
+                                updatedAt = System.currentTimeMillis()))
                             mainViewModel.completeOnboarding()
                             navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
                         },
