@@ -207,20 +207,37 @@ fun ManualEntryScreen(
             // Save
             item {
                 Spacer(Modifier.height(16.dp))
+                // Add to library checkbox
+                var addToLib by remember { mutableStateOf(false) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = addToLib, onCheckedChange = { addToLib = it })
+                    Text("📦 同时加入个人食物库",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Spacer(Modifier.height(4.dp))
+
                 Button(onClick = {
+                    val p = portion.toDoubleOrNull() ?: 100.0
+                    val c = calories.toDoubleOrNull() ?: 0.0
+                    val pr = protein.toDoubleOrNull() ?: 0.0
+                    val cb = carbs.toDoubleOrNull() ?: 0.0
+                    val f = fat.toDoubleOrNull() ?: 0.0
                     val record = FoodRecordEntity(
                         foodName = foodName.ifBlank { "未命名食物" },
-                        portion = portion.toDoubleOrNull() ?: 100.0,
-                        portionUnit = selectedUnit.name,
-                        calories = calories.toDoubleOrNull() ?: 0.0,
-                        proteinGrams = protein.toDoubleOrNull() ?: 0.0,
-                        carbsGrams = carbs.toDoubleOrNull() ?: 0.0,
-                        fatGrams = fat.toDoubleOrNull() ?: 0.0,
+                        portion = p, portionUnit = selectedUnit.name,
+                        calories = c, proteinGrams = pr, carbsGrams = cb, fatGrams = f,
                         mealType = selectedMeal,
                         recordDate = selectedDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
                         recordTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
                         source = "MANUAL"
                     )
+                    if (addToLib) {
+                        viewModel.addToLibrary(foodName.ifBlank { "未命名食物" }, p, selectedUnit.name, c, pr, cb, f)
+                    }
                     onSaved(record)
                 }, modifier = Modifier.fillMaxWidth().height(52.dp), enabled = foodName.isNotBlank(),
                     shape = RoundedCornerShape(26.dp)) {

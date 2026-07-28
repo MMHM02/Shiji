@@ -94,7 +94,7 @@ fun AboutScreen(onBack: () -> Unit = {}) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(16.dp))
 
-            InfoRow("版本", "v0.2.2")
+            InfoRow("版本", "v0.2.3")
             InfoRow("平台", "Android 8.0+")
             InfoRow("技术栈", "Kotlin + Compose + Room + Hilt")
             InfoRow("许可证", "Apache 2.0")
