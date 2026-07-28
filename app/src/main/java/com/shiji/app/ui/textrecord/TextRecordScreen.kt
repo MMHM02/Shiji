@@ -138,18 +138,6 @@ fun TextRecordScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(12.dp))
 
-                    // Examples
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("宫保鸡丁盖饭+紫菜汤", "两个鸡蛋一杯牛奶", "一碗牛肉面加卤蛋").forEach { example ->
-                            SuggestionChip(
-                                onClick = { inputText = example },
-                                label = { Text(example, style = MaterialTheme.typography.labelSmall) }
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-
                     OutlinedTextField(
                         value = inputText,
                         onValueChange = { inputText = it },

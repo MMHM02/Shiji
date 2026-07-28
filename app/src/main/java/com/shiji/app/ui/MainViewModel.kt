@@ -141,6 +141,10 @@ class MainViewModel @Inject constructor(
     fun weightHistoryFlow(startDate: String, endDate: String): Flow<List<HealthMetricEntity>> =
         healthMetricDao.getByTypeAndDateRange("WEIGHT", startDate, endDate)
 
+    val latestWeight: StateFlow<Double?> = healthMetricDao.getByType("WEIGHT")
+        .map { it.firstOrNull()?.value }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     // ---------- preferences ----------
     val isDarkTheme: StateFlow<Boolean?> = userPreferences.isDarkTheme
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)

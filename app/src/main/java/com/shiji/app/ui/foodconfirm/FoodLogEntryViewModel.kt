@@ -174,29 +174,11 @@ class FoodLogEntryViewModel @Inject constructor(
     }
 
     // ---------- offline fallback ----------
+    // Offline keyword estimate removed per user request — AI not configured shows a clean error prompt instead.
 
-    private fun offlineEstimate(text: String): EditableFoodItem {
-        val t = text.lowercase()
-        val cal = when {
-            "炸" in t || "油" in t -> 600.0
-            "奶茶" in t -> 350.0
-            "肉" in t || "鸡" in t -> 450.0
-            "面" in t -> 500.0
-            "饭" in t -> 450.0
-            "蛋" in t -> 150.0
-            "奶" in t || "豆浆" in t -> 120.0
-            "果" in t -> 80.0
-            else -> 350.0
-        }
-        val protein = if ("肉" in t || "鸡" in t || "蛋" in t || "鱼" in t) 25.0 else 12.0
-        val carbs = if ("面" in t || "饭" in t || "包" in t || "粥" in t) 55.0 else 30.0
-        val fat = if ("炸" in t || "油" in t) 22.0 else 8.0
-        return EditableFoodItem(
-            name = text.take(40),
-            portion = "1", portionUnit = "份",
-            calories = cal.toInt().toString(),
-            proteinGrams = protein, carbsGrams = carbs, fatGrams = fat,
-            confidence = 0.3f
-        )
-    }
+    private fun offlineEstimate(text: String): EditableFoodItem = EditableFoodItem(
+        name = text.take(40), portion = "1", portionUnit = "份",
+        calories = "0", proteinGrams = 0.0, carbsGrams = 0.0, fatGrams = 0.0,
+        confidence = 0f
+    )
 }

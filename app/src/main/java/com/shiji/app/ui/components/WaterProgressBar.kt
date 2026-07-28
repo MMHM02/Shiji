@@ -67,10 +67,17 @@ fun WaterProgressBar(
             title = { Text("记录饮水") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         quickOptions.forEach { ml ->
-                            FilterChip(selected = false, onClick = { confirmMl = ml; showPopup = false; showConfirm = true },
-                                label = { Text("${ml}ml") })
+                            FilterChip(
+                                selected = false,
+                                onClick = { confirmMl = ml; showPopup = false; showConfirm = true },
+                                label = { Text("${ml}ml", style = MaterialTheme.typography.labelSmall) },
+                                modifier = Modifier.height(32.dp)
+                            )
                         }
                     }
                     OutlinedTextField(

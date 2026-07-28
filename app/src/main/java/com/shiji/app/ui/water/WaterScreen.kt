@@ -80,20 +80,23 @@ fun WaterScreen(
                 Text("点击水量后确认，避免误触", style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
                     quickOptions.forEach { ml ->
                         OutlinedButton(
                             onClick = { confirmMl = ml; showConfirm = true },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp)
-                        ) { Text("${ml}ml") }
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        ) { Text("${ml}ml", style = MaterialTheme.typography.labelSmall) }
                     }
                     OutlinedButton(
                         onClick = { showCustom = true },
-                        modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = BrandGreen)
-                    ) { Text("自定义", color = BrandGreen) }
+                    ) { Text("自定义", style = MaterialTheme.typography.labelSmall, color = BrandGreen) }
                 }
             }
 

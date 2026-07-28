@@ -1,6 +1,7 @@
 package com.shiji.app.navigation
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -47,7 +49,7 @@ import com.shiji.app.ui.textrecord.TextRecordScreen
 import com.shiji.app.ui.water.WaterScreen
 import com.shiji.app.ui.weight.WeightScreen
 import com.shiji.core.data.entity.UserGoalEntity
-import androidx.compose.ui.unit.dp
+import java.time.LocalDate
 
 data class BottomNavTab(val route: String, val label: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector)
 val bottomNavTabs = listOf(
@@ -73,6 +75,7 @@ fun ShiJiNavGraph() {
     val waterGoal by mainViewModel.waterGoal.collectAsStateWithLifecycle()
     val aiUsage by mainViewModel.aiUsageSummary.collectAsStateWithLifecycle()
     val datesWithRecords by mainViewModel.last60DaysWithRecords.collectAsStateWithLifecycle()
+    val latestWeight by mainViewModel.latestWeight.collectAsStateWithLifecycle()
 
     val systemDark = isSystemInDarkTheme()
     val darkPref by mainViewModel.isDarkTheme.collectAsStateWithLifecycle()
@@ -126,7 +129,6 @@ fun ShiJiNavGraph() {
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // === Main Tabs ===
                 composable("home") {
                     HomeScreen(
                         todayRecords = currentDateRecords,
@@ -136,6 +138,8 @@ fun ShiJiNavGraph() {
                         fatTarget = userGoal?.fatTargetGrams?.toFloat() ?: 65f,
                         waterMl = waterMl,
                         waterGoalMl = waterGoal,
+                        selectedDate = currentDate,
+                        onDateChange = { mainViewModel.setDate(it) },
                         onAddWater = { mainViewModel.addWater(it) },
                         onSetWaterGoal = { mainViewModel.setWaterGoal(it) },
                         onNavigateToCamera = { navController.navigate("camera") },
@@ -153,9 +157,7 @@ fun ShiJiNavGraph() {
                         proteinTarget = userGoal?.proteinTargetGrams ?: 60.0,
                         onNavigateToDietLog = { navController.navigate("diet_log") },
                         onNavigateToWeight = { navController.navigate("weight") },
-                        onNavigateToAIChat = { prompt ->
-                            navController.navigate("ai_chat/${Uri.encode(prompt)}")
-                        }
+                        onNavigateToAIChat = { prompt -> navController.navigate("ai_chat/${Uri.encode(prompt)}") }
                     )
                 }
                 composable("profile") {
@@ -177,14 +179,10 @@ fun ShiJiNavGraph() {
                     )
                 }
 
-                // === AI Chat ===
                 composable("ai_chat") {
-                    AiChatScreen(
-                        initialPrompt = "",
-                        userName = userName,
+                    AiChatScreen(initialPrompt = "", userName = userName,
                         onBack = { navController.popBackStack() },
-                        onNavigateToAiSettings = { navController.navigate("ai_settings") }
-                    )
+                        onNavigateToAiSettings = { navController.navigate("ai_settings") })
                 }
                 composable(
                     route = "ai_chat/{prompt}",
@@ -194,45 +192,33 @@ fun ShiJiNavGraph() {
                         initialPrompt = Uri.decode(backStackEntry.arguments?.getString("prompt") ?: ""),
                         userName = userName,
                         onBack = { navController.popBackStack() },
-                        onNavigateToAiSettings = { navController.navigate("ai_settings") }
-                    )
+                        onNavigateToAiSettings = { navController.navigate("ai_settings") })
                 }
 
-                // === AI Settings ===
                 composable("ai_settings") { AiSettingsScreen(onBack = { navController.popBackStack() }) }
 
-                // === Food entry ===
                 composable("camera") {
-                    CameraScreen(
-                        onBack = { navController.popBackStack() },
+                    CameraScreen(onBack = { navController.popBackStack() },
                         onSaved = { navController.popBackStack() },
                         onNavigateToAiSettings = { navController.navigate("ai_settings") },
                         onNavigateToTextRecord = {
                             navController.navigate("textrecord") { popUpTo("camera") { inclusive = true } }
-                        }
-                    )
+                        })
                 }
                 composable("textrecord") {
-                    TextRecordScreen(
-                        onBack = { navController.popBackStack() },
+                    TextRecordScreen(onBack = { navController.popBackStack() },
                         onSaved = { navController.popBackStack() },
-                        onNavigateToAiSettings = { navController.navigate("ai_settings") }
-                    )
+                        onNavigateToAiSettings = { navController.navigate("ai_settings") })
                 }
                 composable("manual") {
-                    ManualEntryScreen(
-                        cachedFoods = cachedFoods,
+                    ManualEntryScreen(cachedFoods = cachedFoods,
                         onSearchFoods = { q -> cachedFoods.filter { it.name.contains(q, ignoreCase = true) } },
-                        onSaved = { record ->
-                            mainViewModel.saveRecords(listOf(record))
-                            navController.popBackStack()
-                        },
-                        onBack = { navController.popBackStack() }
-                    )
+                        onSaved = { record -> mainViewModel.saveRecords(listOf(record)); navController.popBackStack() },
+                        onBack = { navController.popBackStack() })
                 }
 
-                // === Logs ===
                 composable("diet_log") {
+                    LaunchedEffect(Unit) { mainViewModel.setDate(LocalDate.now()) }
                     DietLogScreen(
                         records = currentDateRecords,
                         date = currentDate,
@@ -245,51 +231,37 @@ fun ShiJiNavGraph() {
                     )
                 }
                 composable("food_library") {
-                    FoodLibraryScreen(
-                        foods = cachedFoods,
+                    FoodLibraryScreen(foods = cachedFoods,
                         onAddFood = { food -> mainViewModel.addCachedFood(food) },
                         onDeleteFood = { id -> mainViewModel.deleteCachedFood(id) },
-                        onBack = { navController.popBackStack() }
-                    )
+                        onBack = { navController.popBackStack() })
                 }
 
-                // === Health ===
                 composable("weight") {
-                    WeightScreen(
-                        onBack = { navController.popBackStack() },
+                    WeightScreen(onBack = { navController.popBackStack() },
                         onSaveWeight = { mainViewModel.saveWeight(it) },
                         weightHistory = mainViewModel.weightHistoryFlow(
-                            java.time.LocalDate.now().minusDays(90).toString(),
-                            java.time.LocalDate.now().toString()
-                        )
-                    )
+                            LocalDate.now().minusDays(90).toString(), LocalDate.now().toString()))
                 }
                 composable("water") {
-                    WaterScreen(
-                        onBack = { navController.popBackStack() },
-                        waterMl = waterMl,
-                        waterGoalMl = waterGoal,
+                    WaterScreen(onBack = { navController.popBackStack() },
+                        waterMl = waterMl, waterGoalMl = waterGoal,
                         onAddWater = { mainViewModel.addWater(it) },
-                        onSetWaterGoal = { mainViewModel.setWaterGoal(it) }
-                    )
+                        onSetWaterGoal = { mainViewModel.setWaterGoal(it) })
                 }
                 composable("goal") {
                     GoalSettingScreen(
                         onBack = { navController.popBackStack() },
-                        onSave = { goal -> mainViewModel.saveGoal(goal); navController.popBackStack() }
-                    )
+                        existingGoal = userGoal,
+                        latestWeight = latestWeight,
+                        onSave = { goal -> mainViewModel.saveGoal(goal); navController.popBackStack() })
                 }
 
-                // === Onboarding ===
                 composable("onboarding") {
                     var step by remember { mutableIntStateOf(1) }
-                    OnboardingScreen(
-                        step = step,
-                        onStepChange = { step = it },
+                    OnboardingScreen(step = step, onStepChange = { step = it },
                         onComplete = { heightCm, weightKg, goalType ->
-                            mainViewModel.saveGoal(UserGoalEntity(
-                                heightCm = heightCm, currentWeightKg = weightKg, goalType = goalType
-                            ))
+                            mainViewModel.saveGoal(UserGoalEntity(heightCm = heightCm, currentWeightKg = weightKg, goalType = goalType))
                             mainViewModel.completeOnboarding()
                             navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
                         },
@@ -297,11 +269,9 @@ fun ShiJiNavGraph() {
                             mainViewModel.completeOnboarding()
                             navController.navigate("home") { popUpTo("onboarding") { inclusive = true } }
                         },
-                        onNavigateToAiSettings = { navController.navigate("ai_settings") }
-                    )
+                        onNavigateToAiSettings = { navController.navigate("ai_settings") })
                 }
 
-                // === System ===
                 composable("data_export") { DataExportScreen(onBack = { navController.popBackStack() }) }
                 composable("privacy") { PrivacyPolicyScreen(onBack = { navController.popBackStack() }) }
                 composable("about") { AboutScreen(onBack = { navController.popBackStack() }) }

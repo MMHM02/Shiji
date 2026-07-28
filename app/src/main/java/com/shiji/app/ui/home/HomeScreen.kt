@@ -1,5 +1,6 @@
 package com.shiji.app.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,7 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -19,8 +20,10 @@ import com.shiji.app.ui.components.*
 import com.shiji.app.ui.theme.*
 import com.shiji.core.common.util.PortionConverter
 import com.shiji.core.data.entity.FoodRecordEntity
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     todayRecords: List<FoodRecordEntity> = emptyList(),
@@ -30,6 +33,8 @@ fun HomeScreen(
     fatTarget: Float = 65f,
     waterMl: Int = 0,
     waterGoalMl: Int = 2000,
+    selectedDate: LocalDate = LocalDate.now(),
+    onDateChange: (LocalDate) -> Unit = {},
     onAddWater: (Int) -> Unit = {},
     onSetWaterGoal: (Int) -> Unit = {},
     onNavigateToCamera: () -> Unit = {},
@@ -39,10 +44,34 @@ fun HomeScreen(
     onNavigateToDietLog: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val today = LocalDate.now()
+    val isToday = selectedDate == today
     val totalCal = todayRecords.sumOf { it.calories }.toFloat()
     val totalProtein = todayRecords.sumOf { it.proteinGrams }.toFloat()
     val totalCarbs = todayRecords.sumOf { it.carbsGrams }.toFloat()
     val totalFat = todayRecords.sumOf { it.fatGrams }.toFloat()
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    // DatePickerDialog
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDate
+            .atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli())
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        onDateChange(java.time.Instant.ofEpochMilli(it)
+                            .atZone(java.time.ZoneId.systemDefault()).toLocalDate())
+                    }
+                    showDatePicker = false
+                }) { Text("确定") }
+            },
+            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("取消") } }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -50,11 +79,31 @@ fun HomeScreen(
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
-                    Column {
-                        Text("今天", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium,
+                    Column(
+                        modifier = Modifier.clickable { showDatePicker = true }
+                    ) {
+                        Text(if (isToday) "今天" else "补签",
+                            style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(getTodayLabel(), style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold, letterSpacing = (-0.01).em)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                if (isToday) formatDateLabel(selectedDate)
+                                else selectedDate.format(DateTimeFormatter.ofPattern("M月d日 EEEE")),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold, letterSpacing = (-0.01).em
+                            )
+                            Icon(Icons.Filled.ArrowDropDown, null, modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if (!isToday) {
+                            TextButton(
+                                onClick = { onDateChange(today) },
+                                contentPadding = PaddingValues(0.dp)
+                            ) {
+                                Text("← 回到今天", style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Filled.Settings, "设置", tint = MaterialTheme.colorScheme.onSurface)
@@ -189,14 +238,15 @@ private fun formatPortion(portion: Double, unit: String): String {
     return "$p$unit"
 }
 
-private fun getTodayLabel(): String {
-    val cal = Calendar.getInstance()
-    val month = cal.get(Calendar.MONTH) + 1
-    val day = cal.get(Calendar.DAY_OF_MONTH)
-    val dayOfWeek = when (cal.get(Calendar.DAY_OF_WEEK)) {
-        Calendar.MONDAY -> "周一"; Calendar.TUESDAY -> "周二"; Calendar.WEDNESDAY -> "周三"
-        Calendar.THURSDAY -> "周四"; Calendar.FRIDAY -> "周五"; Calendar.SATURDAY -> "周六"
+private fun formatDateLabel(date: LocalDate): String {
+    val dayOfWeek = when (date.dayOfWeek) {
+        java.time.DayOfWeek.MONDAY -> "周一"
+        java.time.DayOfWeek.TUESDAY -> "周二"
+        java.time.DayOfWeek.WEDNESDAY -> "周三"
+        java.time.DayOfWeek.THURSDAY -> "周四"
+        java.time.DayOfWeek.FRIDAY -> "周五"
+        java.time.DayOfWeek.SATURDAY -> "周六"
         else -> "周日"
     }
-    return "${month}月${day}日 $dayOfWeek"
+    return "${date.monthValue}月${date.dayOfMonth}日 $dayOfWeek"
 }
