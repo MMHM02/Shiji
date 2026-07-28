@@ -51,23 +51,7 @@ class MainViewModel @Inject constructor(
 
     fun saveRecords(records: List<FoodRecordEntity>) {
         if (records.isEmpty()) return
-        viewModelScope.launch {
-            records.forEach { record ->
-                foodRepository.saveRecord(record)
-                if (record.portion > 0 && cachedFoods.value.none { it.name == record.foodName }) {
-                    val factor = 100.0 / record.portion
-                    foodRepository.addToCache(CachedFoodItemEntity(
-                        name = record.foodName,
-                        caloriesPer100g = record.calories * factor,
-                        proteinPer100g = record.proteinGrams * factor,
-                        carbsPer100g = record.carbsGrams * factor,
-                        fatPer100g = record.fatGrams * factor,
-                        defaultPortion = record.portion,
-                        defaultUnit = record.portionUnit
-                    ))
-                }
-            }
-        }
+        viewModelScope.launch { records.forEach { foodRepository.saveRecord(it) } }
     }
 
     fun deleteRecord(id: Long) = viewModelScope.launch { foodRepository.deleteRecord(id) }

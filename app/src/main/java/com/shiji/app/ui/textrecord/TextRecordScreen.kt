@@ -100,9 +100,11 @@ fun TextRecordScreen(
                         onSetMealType = viewModel::setMealType,
                         onUpdateItem = viewModel::updateItem,
                         onRemoveItem = viewModel::removeItem,
+                        onAddToLibrary = { viewModel.addToLibrary(it) },
                         onCancel = { viewModel.reset() },
                         onSave = { viewModel.save("TEXT") },
-                        cancelLabel = "重新输入"
+                        cancelLabel = "重新输入",
+                        libraryStatus = viewModel.libraryAdded.collectAsStateWithLifecycle().value
                     )
                 }
             }

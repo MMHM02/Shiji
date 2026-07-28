@@ -180,6 +180,8 @@ fun CameraScreen(
                     onSetMealType = viewModel::setMealType,
                     onUpdateItem = viewModel::updateItem,
                     onRemoveItem = viewModel::removeItem,
+                    onAddToLibrary = { viewModel.addToLibrary(it) },
+                    libraryStatus = viewModel.libraryAdded.collectAsStateWithLifecycle().value,
                     onRetake = { viewModel.retake(); step = CameraStep.PREVIEW },
                     onSave = { viewModel.save(context) }
                 )
@@ -378,21 +380,19 @@ private fun ResultConfirmContent(
     onSetMealType: (String) -> Unit,
     onUpdateItem: (String, (EditableFoodItem) -> EditableFoodItem) -> Unit,
     onRemoveItem: (String) -> Unit,
+    onAddToLibrary: (EditableFoodItem) -> Unit,
+    libraryStatus: Map<String, Boolean>,
     onRetake: () -> Unit,
     onSave: () -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
-        // header with photo thumbnail
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = uiState.photoUri,
-                contentDescription = null,
+            AsyncImage(model = uiState.photoUri, contentDescription = null,
                 modifier = Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
+                contentScale = ContentScale.Crop)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("确认识别结果", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
@@ -408,9 +408,11 @@ private fun ResultConfirmContent(
             onSetMealType = onSetMealType,
             onUpdateItem = onUpdateItem,
             onRemoveItem = onRemoveItem,
+            onAddToLibrary = onAddToLibrary,
             onCancel = onRetake,
             onSave = onSave,
-            cancelLabel = "重拍"
+            cancelLabel = "重拍",
+            libraryStatus = libraryStatus
         )
     }
 }

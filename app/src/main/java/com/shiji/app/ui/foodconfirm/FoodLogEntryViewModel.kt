@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shiji.core.ai.api.AiException
 import com.shiji.core.ai.manager.AiServiceManager
 import com.shiji.core.common.result.Result
+import com.shiji.core.data.entity.CachedFoodItemEntity
 import com.shiji.core.data.entity.FoodRecordEntity
 import com.shiji.core.data.repository.FoodRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -123,6 +124,26 @@ class FoodLogEntryViewModel @Inject constructor(
     fun cancelParse() {
         parseJob?.cancel()
         _uiState.update { it.copy(parseState = ParseState.Idle) }
+    }
+
+    // Library add tracking: item id → added
+    private val _libraryAdded = MutableStateFlow<Map<String, Boolean>>(emptyMap())
+    val libraryAdded: StateFlow<Map<String, Boolean>> = _libraryAdded.asStateFlow()
+
+    fun addToLibrary(item: EditableFoodItem) {
+        if (_libraryAdded.value[item.id] == true) return
+        viewModelScope.launch {
+            val factor = 100.0 / item.portionValue()
+            foodRepository.addToCache(CachedFoodItemEntity(
+                name = item.displayName(),
+                caloriesPer100g = item.caloriesValue() * factor,
+                proteinPer100g = item.proteinGrams * factor,
+                carbsPer100g = item.carbsGrams * factor,
+                fatPer100g = item.fatGrams * factor,
+                defaultPortion = item.portionValue(),
+                defaultUnit = item.portionUnit))
+            _libraryAdded.update { it + (item.id to true) }
+        }
     }
 
     fun reset() {
