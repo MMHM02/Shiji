@@ -5,6 +5,7 @@ import android.net.Uri
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import android.os.Environment
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -58,9 +59,9 @@ class DataExportManager {
         return fromJson(content)
     }
 
-    /** Backup folder — private to the app, survives uninstall only if the user backs it up manually. */
+    /** Backup folder — public Downloads directory, accessible from any file manager. */
     fun backupDir(context: Context): File =
-        File(context.filesDir, "shiji_backups").also { it.mkdirs() }
+        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "ShiJi").also { it.mkdirs() }
 
     /**
      * Write export to the backup folder. Deletes any existing .fitness file first

@@ -148,18 +148,20 @@ fun DataExportScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("📋 规则说明", fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
-                    Text("• 备份文件存放在应用私有目录，无需手动管理",
+                    Text("• 备份文件存储在「下载/ShiJi/」目录，任何文件管理器都能找到",
                         style = MaterialTheme.typography.bodySmall)
-                    Text("• 文件夹内只保留一个 .fitness 文件，导出时会自动删除旧备份",
+                    Text("• 文件夹内只保留一个 .fitness 文件，导出时自动删除旧备份",
+                        style = MaterialTheme.typography.bodySmall)
+                    Text("• 导入时自动读取该目录下的 .fitness 文件",
                         style = MaterialTheme.typography.bodySmall)
                     Text("• .fitness 文件是标准 JSON，不含照片，人可阅读",
                         style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.height(8.dp))
-                    Text("📁 备份文件夹:",
+                    Text("📁 备份文件夹（文件管理器可直接打开）:",
                         style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
                     Text(screenState.backupFolder,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
