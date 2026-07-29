@@ -79,16 +79,16 @@ fun DietLogScreen(
             if (records.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text("🔥 $totalCal kcal", style = MaterialTheme.typography.bodyMedium,
+                    Text("🔥 $totalCal", style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Medium, color = Calories)
-                    Text("🥩 ${records.sumOf { it.proteinGrams }.toInt()}g 蛋白",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("💧 ${records.sumOf { it.carbsGrams }.toInt()}g 碳水",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("🫒 ${records.sumOf { it.fatGrams }.toInt()}g 脂肪",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("🥩 ${records.sumOf { it.proteinGrams }.toInt()}g",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("🍚 ${records.sumOf { it.carbsGrams }.toInt()}g",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("🫒 ${records.sumOf { it.fatGrams }.toInt()}g",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 

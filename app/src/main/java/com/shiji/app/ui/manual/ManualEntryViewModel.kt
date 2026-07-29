@@ -36,11 +36,10 @@ class ManualEntryViewModel @Inject constructor(
     fun addToLibrary(name: String, portion: Double, unit: String,
                      calories: Double, protein: Double, carbs: Double, fat: Double) {
         viewModelScope.launch {
-            val factor = 100.0 / portion.coerceAtLeast(1.0)
             foodRepository.addToCache(CachedFoodItemEntity(
-                name = name, caloriesPer100g = calories * factor,
-                proteinPer100g = protein * factor, carbsPer100g = carbs * factor,
-                fatPer100g = fat * factor, defaultPortion = portion, defaultUnit = unit))
+                name = name, caloriesPer100g = calories,
+                proteinPer100g = protein, carbsPer100g = carbs,
+                fatPer100g = fat, defaultPortion = portion, defaultUnit = unit))
         }
     }
 }

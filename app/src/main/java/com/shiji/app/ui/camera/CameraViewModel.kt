@@ -146,13 +146,12 @@ class CameraViewModel @Inject constructor(
     fun addToLibrary(item: EditableFoodItem) {
         if (_libraryAdded.value[item.id] == true) return
         viewModelScope.launch {
-            val factor = 100.0 / item.portionValue().coerceAtLeast(1.0)
             foodRepository.addToCache(CachedFoodItemEntity(
                 name = item.displayName(),
-                caloriesPer100g = item.caloriesValue() * factor,
-                proteinPer100g = item.proteinGrams * factor,
-                carbsPer100g = item.carbsGrams * factor,
-                fatPer100g = item.fatGrams * factor,
+                caloriesPer100g = item.caloriesValue(),
+                proteinPer100g = item.proteinGrams,
+                carbsPer100g = item.carbsGrams,
+                fatPer100g = item.fatGrams,
                 defaultPortion = item.portionValue(),
                 defaultUnit = item.portionUnit))
             _libraryAdded.update { it + (item.id to true) }

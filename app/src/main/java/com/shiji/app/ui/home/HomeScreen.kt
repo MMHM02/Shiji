@@ -105,9 +105,6 @@ fun HomeScreen(
                             }
                         }
                     }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Filled.Settings, "设置", tint = MaterialTheme.colorScheme.onSurface)
-                    }
                 }
             }
         }
