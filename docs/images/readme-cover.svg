@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460" role="img" aria-labelledby="title desc">
+  <title id="title">食记 ShiJi</title>
+  <desc id="desc">记录每一餐，看见自己的饮食习惯。拍照识食、文字记餐、本地记录、自选 AI。</desc>
+  <rect width="1280" height="460" rx="24" fill="#F3F3E9"/>
+  <path d="M0 414H1280" stroke="#D9DFD1"/>
+  <g font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif">
+    <text x="66" y="73" font-size="16" letter-spacing="5" fill="#55745E">SHIJI / OPEN SOURCE ANDROID</text>
+    <text x="62" y="177" font-size="82" font-weight="700" fill="#214A37">食记<tspan dx="24" font-size="42" font-weight="400">ShiJi</tspan></text>
+    <text x="66" y="245" font-size="32" fill="#214A37">记录每一餐，看见自己的饮食习惯。</text>
+    <text x="66" y="292" font-size="21" fill="#677568">从一份早餐开始，慢慢了解自己的日常。</text>
+    <rect x="66" y="331" width="122" height="40" rx="20" fill="#214A37"/>
+    <text x="127" y="357" text-anchor="middle" font-size="17" fill="#fff">拍照识食</text>
+    <rect x="202" y="331" width="122" height="40" rx="20" fill="#DFE7D8"/>
+    <text x="263" y="357" text-anchor="middle" font-size="17" fill="#214A37">文字记餐</text>
+    <rect x="338" y="331" width="122" height="40" rx="20" fill="#DFE7D8"/>
+    <text x="399" y="357" text-anchor="middle" font-size="17" fill="#214A37">本地记录</text>
+    <rect x="474" y="331" width="122" height="40" rx="20" fill="#DFE7D8"/>
+    <text x="535" y="357" text-anchor="middle" font-size="17" fill="#214A37">自选 AI</text>
+    <text x="66" y="443" font-size="14" letter-spacing="2" fill="#677568">KOTLIN · JETPACK COMPOSE · ANDROID 8.0+</text>
+    <text x="1210" y="443" text-anchor="end" font-size="14" fill="#677568">每一餐，都值得被记住。</text>
+  </g>
+  <circle cx="1000" cy="224" r="167" fill="#E4E9DA"/>
+  <circle cx="1000" cy="224" r="143" fill="#FCFCF7" stroke="#CAD6C3" stroke-width="2"/>
+  <circle cx="1000" cy="224" r="111" fill="none" stroke="#E5EADC" stroke-width="17"/>
+  <path d="M1000 113A111 111 0 1 1 894 257" fill="none" stroke="#527958" stroke-width="17" stroke-linecap="round"/>
+  <path d="M947 219Q935 166 987 168Q1014 188 994 222Q971 239 947 219" fill="#A8BC7E"/>
+  <path d="M1004 220Q1019 173 1050 187Q1081 213 1045 239Q1022 241 1004 220" fill="#D4A565"/>
+  <path d="M962 244Q988 221 1017 243Q1036 260 1014 282Q975 291 962 264Z" fill="#DDE0BE"/>
+  <path d="M952 174L987 215M959 196L975 191" stroke="#6E8C59" stroke-width="3" fill="none"/>
+</svg>

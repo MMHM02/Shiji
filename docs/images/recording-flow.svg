@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">从记录到回顾</title>
+  <desc id="desc">拍照或相册使用视觉模型，文字描述使用文本模型，手动填写无需 AI。核对食物份量和营养后保存到本机，再查看首页、日志和趋势。</desc>
+  <rect width="1200" height="420" rx="20" fill="#F6F7F1"/>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#76927A"/></marker></defs>
+  <g font-family="Microsoft YaHei, PingFang SC, Noto Sans CJK SC, sans-serif">
+    <text x="40" y="52" font-size="24" font-weight="700" fill="#214A37">从记录到回顾</text>
+    <text x="1160" y="50" text-anchor="end" font-size="16" fill="#647567">功能流程示意 · 非应用截图</text>
+    <g fill="#FFFFFF" stroke="#D7DFD1" stroke-width="1.5">
+      <rect x="40" y="88" width="290" height="80" rx="14"/>
+      <rect x="40" y="185" width="290" height="80" rx="14"/>
+      <rect x="40" y="282" width="290" height="80" rx="14"/>
+      <rect x="423" y="160" width="220" height="130" rx="14"/>
+      <rect x="692" y="160" width="200" height="130" rx="14"/>
+      <rect x="941" y="160" width="219" height="130" rx="14"/>
+    </g>
+    <g font-size="21" font-weight="700" fill="#214A37">
+      <text x="62" y="121">01 / 拍照或相册</text>
+      <text x="62" y="218">02 / 文字描述</text>
+      <text x="62" y="315">03 / 手动填写</text>
+      <text x="445" y="199">核对与调整</text>
+      <text x="714" y="199">确认保存</text>
+      <text x="963" y="199">查看与回顾</text>
+    </g>
+    <g font-size="16" fill="#647567">
+      <text x="62" y="149">视觉模型识别食物与营养</text>
+      <text x="62" y="246">文本模型解析一餐的内容</text>
+      <text x="62" y="343">自行输入，也可复用食物库</text>
+      <text x="445" y="231">食物名称、份量</text>
+      <text x="445" y="259">热量与三大营养素</text>
+      <text x="714" y="231">确认日期与餐次</text>
+      <text x="714" y="259">记录存入本机</text>
+      <text x="963" y="231">首页、日志与趋势</text>
+      <text x="963" y="259">可选 AI 顾问复盘</text>
+    </g>
+    <text x="40" y="398" font-size="15" fill="#647567">AI 结果需要核对；保存后，记录才会纳入日常统计。</text>
+  </g>
+  <g stroke="#76927A" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M330 128H371V225H414"/>
+    <path d="M330 225H414"/>
+    <path d="M330 322H371V225H414"/>
+    <path d="M643 225H683"/>
+    <path d="M892 225H932"/>
+  </g>
+</svg>
