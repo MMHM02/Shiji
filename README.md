@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="docs/images/readme-cover.svg" alt="食记 ShiJi：记录每一餐，看见自己的饮食习惯" width="100%">
+  <img src="docs/images/shiji-intro.gif" alt="食记 ShiJi：记录每一餐，看见自己的饮食习惯" width="100%">
 </p>
+
+<p align="center"><sub>6 秒循环功能动效 · 非应用实录 · <a href="docs/images/readme-cover.svg">查看静态封面</a></sub></p>
 
 <p align="center">
   <a href="https://github.com/MMHM02/Shiji/releases"><img src="https://img.shields.io/github/v/release/MMHM02/Shiji?style=flat-square&amp;label=Release&amp;color=42785B" alt="GitHub Release"></a>
